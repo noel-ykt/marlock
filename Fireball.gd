@@ -1,10 +1,12 @@
 extends RigidBody2D
 
-export var speed = 150
+export var speed = 250
 
 func _ready():
 	$AnimatedSprite.animation = "fly"
 
+func _physics_process(delta):
+	linear_velocity = Vector2(speed, 0)
 
 func _process(delta):
 	if $AnimatedSprite.animation == "destroy" && $AnimatedSprite.frame == 2:

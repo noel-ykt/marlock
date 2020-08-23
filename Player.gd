@@ -1,9 +1,14 @@
-extends Area2D
+extends RigidBody2D
 signal hit
+
+export (PackedScene) var Fireball
 
 export var hp = 100
 export var speed = 100
 var screen_size
+var _move_to_pos = Vector2(0, 0)
+var _moving = false
+var _move = false
 
 func start(pos):
 	position = pos
@@ -14,38 +19,40 @@ func _ready():
 	hide()
 	screen_size = get_viewport_rect().size
 
+func castFireball():
+	var fireball = Fireball.instance()
+	get_node("/root/Main").add_child(fireball)
+	
+	fireball.global_position = position
+	fireball.global_position.x += 20
+	fireball.rotation_degrees = 90
+
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		if event.scancode == KEY_SPACE:
+			castFireball()
+	if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_RIGHT:
+		print("Mouse Right Click at: ", event.position)
+		_move = true
+		_move_to_pos = event.position
+		var move_path_vector = _move_to_pos - position
+		moveTo(move_path_vector)
+
+func moveTo(vector):
+	self.linear_velocity = vector.normalized() * speed
+	_moving = true
 
 func _process(delta):
-	var velocity = Vector2()
-	if Input.is_action_pressed("ui_right"):
-		velocity.x += 1
-	if Input.is_action_pressed("ui_left"):
-		velocity.x -= 1
-	if Input.is_action_pressed("ui_down"):
-		velocity.y += 1
-	if Input.is_action_pressed("ui_up"):
-		velocity.y -= 1
-	if velocity.length() > 0:
-		velocity = velocity.normalized() * speed
-		$AnimatedSprite.play()
-	else:
-		$AnimatedSprite.stop()
-	
-	position += velocity * delta
-	position.x = clamp(position.x, 0, screen_size.x)
-	position.y = clamp(position.y, 0, screen_size.y)
-	
-	if velocity.x > 0:
-		$AnimatedSprite.animation = "castle-male-right"
-	elif velocity.x < 0:
-		$AnimatedSprite.animation = "castle-male-left"
-	elif velocity.y > 0:
-		$AnimatedSprite.animation = "castle-male-down"
-	elif velocity.y < 0:
-		$AnimatedSprite.animation = "castle-male-up"
+	if _move or _moving:
+		var move_path_vector = _move_to_pos - position
+		var move_path_length = move_path_vector.length()
+		if move_path_length < 2:
+			self.linear_velocity = Vector2(0, 0)
+			_move = false
+			_moving = false
 
 
 func _on_Player_body_entered(body):
 	body.destroy()
 	emit_signal("hit")
-#	$CollisionShape2D.set_deferred("disabled", true)
+	$CollisionShape2D.set_deferred("disabled", true)
