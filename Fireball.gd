@@ -17,7 +17,7 @@ func destroy():
 	linear_velocity = Vector2.ZERO
 	$AnimatedSprite.animation = "destroy"
 	$CollisionShape2D.set_deferred("disabled", true)
-	
+
 func cast(vector):
 	linear_velocity = vector.normalized() * speed
 	rotation = vector.angle()
