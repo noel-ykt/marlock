@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 4).png" type="Texture" id=1]
 [ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 1).png" type="Texture" id=2]
@@ -12,20 +12,11 @@
 [ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Right (Frame 4).png" type="Texture" id=10]
 [ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 2).png" type="Texture" id=11]
 [ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 4).png" type="Texture" id=12]
-[ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Left (Frame 1).png" type="Texture" id=13]
-[ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Left (Frame 2).png" type="Texture" id=14]
-[ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Left (Frame 3).png" type="Texture" id=15]
-[ext_resource path="res://assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Left (Frame 4).png" type="Texture" id=16]
 [ext_resource path="res://Player.gd" type="Script" id=17]
 [ext_resource path="res://Fireball.tscn" type="PackedScene" id=18]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 13 ), ExtResource( 14 ), ExtResource( 15 ), ExtResource( 16 ) ],
-"loop": true,
-"name": "castle-male-left",
-"speed": 5.0
-}, {
 "frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
 "loop": true,
 "name": "castle-male-right",
