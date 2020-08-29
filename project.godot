@@ -16,8 +16,16 @@ _global_script_class_icons={
 [application]
 
 config/name="marlock"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://Lobby.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+gamestate="*res://gamestate.gd"
+
+[display]
+
+window/size/resizable=false
 
 [input]
 
