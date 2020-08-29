@@ -30,7 +30,12 @@ func _player_connected(id):
 	rpc_id(id, "register_player", player_name)
 
 func _player_disconnected(id):
-	unregister_player(id)
+	if has_node("/root/Main"): # Game is in progress.
+		if get_tree().is_network_server():
+			emit_signal("game_error", "Player " + players[id] + " disconnected")
+			end_game()
+	else:
+		unregister_player(id)
 
 func _connected_ok():
 	emit_signal("connection_succeeded")
@@ -69,3 +74,59 @@ func join_game(ip, new_player_name):
 	peer = NetworkedMultiplayerENet.new()
 	peer.create_client(ip, DEFAULT_PORT)
 	get_tree().set_network_peer(peer)
+	
+func begin_game():
+	assert(get_tree().is_network_server())
+	
+	var spawn_points = {}
+	spawn_points[1] = 0
+	var spawn_point_idx = 1
+	for p in players:
+		spawn_points[p] = spawn_point_idx
+		spawn_point_idx += 1
+	for p in players:
+		rpc_id(p, "pre_start_game", spawn_points)
+	pre_start_game(spawn_points)
+	
+func end_game():
+	if has_node("/root/Main"):
+		get_node("/root/Main").queue_free()
+	emit_signal("game_ended")
+	players.clear()
+	
+remote func pre_start_game(spawn_points):
+	var world = load("res://Main.tscn").instance()
+	get_tree().get_root().add_child(world)
+	get_tree().get_root().get_node("Lobby").hide()
+	
+	var player_scene = load("res://Player.tscn")
+	for p_id in spawn_points:
+		var spawn_pos = world.get_node("StartPosition").position
+		var player = player_scene.instance()
+		
+		player.set_name(str(p_id)) # Use unique ID as node name.
+		player.position = spawn_pos
+		player.set_network_master(p_id) #set unique id as master.
+		
+		world.get_node("Players").add_child(player)
+		
+	if not get_tree().is_network_server():
+		# Tell server we are ready to start.
+		rpc_id(1, "ready_to_start", get_tree().get_network_unique_id())
+	elif players.size() == 0:
+		post_start_game()
+		
+	
+remote func post_start_game():
+	get_tree().set_pause(false) # Unpause and unleash the game!
+	
+remote func ready_to_start(id):
+	assert(get_tree().is_network_server())
+	
+	if not id in players_ready:
+		players_ready.append(id)
+	
+	if players_ready.size() == players.size():
+		for p in players:
+			rpc_id(p, "post_start_game")
+		post_start_game()

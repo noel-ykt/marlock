@@ -73,3 +73,7 @@ func _on_JoinBtn_pressed():
 	
 	var player_name = $Connect/NameInput.text
 	gamestate.join_game(ip, player_name)
+
+
+func _on_StartBtn_pressed():
+	gamestate.begin_game()

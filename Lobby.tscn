@@ -10,9 +10,6 @@ margin_top = -1.83801
 margin_right = 0.889771
 margin_bottom = -1.83801
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Background" type="Panel" parent="."]
 anchor_right = 1.0
@@ -57,6 +54,8 @@ size_flags_vertical = 0
 align = 1
 placeholder_text = "Username"
 placeholder_alpha = 0.5
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="JoinBtn" type="Button" parent="Connect"]
 margin_left = 270.0
@@ -85,6 +84,8 @@ margin_bottom = 60.0
 align = 1
 placeholder_text = "127.0.0.1"
 placeholder_alpha = 0.5
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="HostBtn" type="Button" parent="Connect"]
 margin_left = 20.0
@@ -130,3 +131,4 @@ margin_bottom = 480.0
 text = "Start!"
 [connection signal="pressed" from="Connect/JoinBtn" to="." method="_on_JoinBtn_pressed"]
 [connection signal="pressed" from="Connect/HostBtn" to="." method="_on_HostBtn_pressed"]
+[connection signal="pressed" from="Players/StartBtn" to="." method="_on_StartBtn_pressed"]
