@@ -1,5 +1,6 @@
 extends Control
 
+
 func _ready():
 	# Called every time the node is added to the scene.
 	gamestate.connect("connection_succeeded", self, "_on_connection_success")
@@ -14,14 +15,17 @@ func _ready():
 		var desktop_path = OS.get_system_dir(0).replace("\\", "/").split("/")
 		$Connect/NameInput.text = desktop_path[desktop_path.size() - 2]
 
+
 func _on_connection_success():
 	$Connect.hide()
 	$Players.show()
+
 
 func _on_connection_failed():
 	$Connect/HostBtn.disabled = false
 	$Connect/JoinBtn.disabled = false
 	$Background/ErrorLabel.set_text("Connection Failed.")
+
 
 func refresh_lobby():
 	var players = gamestate.get_player_list()
@@ -33,12 +37,14 @@ func refresh_lobby():
 		
 	$Players/StartBtn.disabled = not get_tree().is_network_server()
 
+
 func _on_game_end():
 	show()
 	$Connect.show()
 	$Players.hide()
 	$Connect/HostBtn.disabled = false
 	$Connect/JoinBtn.disabled = false
+
 
 func _on_game_error(errtxt):
 	$Background/ErrorLabel.set_text(errtxt)

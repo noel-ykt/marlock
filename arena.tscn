@@ -1,6 +1,6 @@
 [gd_scene format=2]
 
-[node name="Main" type="Node"]
+[node name="Arena" type="Node"]
 
 [node name="StartPosition" type="Position2D" parent="."]
 position = Vector2( 512, 300 )

@@ -16,6 +16,11 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
+"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
+"loop": true,
+"name": "castle-male-down",
+"speed": 5.0
+}, {
 "frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
 "loop": true,
 "name": "castle-male-right",
@@ -25,18 +30,17 @@ animations = [ {
 "loop": true,
 "name": "castle-male-up",
 "speed": 5.0
-}, {
-"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
-"loop": true,
-"name": "castle-male-down",
-"speed": 5.0
 } ]
 
 [sub_resource type="CircleShape2D" id=2]
 radius = 13.8269
 
 [node name="Player" type="RigidBody2D"]
+position = Vector2( 1, 0 )
+mode = 2
 gravity_scale = 0.0
+can_sleep = false
+linear_damp = 0.0
 script = ExtResource( 17 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]

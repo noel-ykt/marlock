@@ -33,7 +33,7 @@ func _player_connected(id) -> void:
 
 
 func _player_disconnected(id) -> void:
-	if has_node("/root/Main"): # Game is in progress.
+	if has_node("/root/Arena"): # Game is in progress.
 		if get_tree().is_network_server():
 			emit_signal("game_error", "Player " + players[id] + " disconnected")
 			end_game()
@@ -103,14 +103,14 @@ func begin_game() -> void:
 	
 	
 func end_game() -> void:
-	if has_node("/root/Main"):
-		get_node("/root/Main").queue_free()
+	if has_node("/root/Arena"):
+		get_node("/root/Arena").queue_free()
 	emit_signal("game_ended")
 	players.clear()
 	
 	
 remote func pre_start_game(spawn_points) -> void:
-	var world = load("res://Main.tscn").instance()
+	var world = load("res://arena.tscn").instance()
 	get_tree().get_root().add_child(world)
 	get_tree().get_root().get_node("Lobby").hide()
 	
@@ -121,6 +121,7 @@ remote func pre_start_game(spawn_points) -> void:
 		
 		player.set_name(str(p_id)) # Use unique ID as node name.
 		player.position = spawn_pos
+		player.set_inertia(0)
 		player.set_network_master(p_id) #set unique id as master.
 		
 		world.get_node("Players").add_child(player)

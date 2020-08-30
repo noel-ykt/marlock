@@ -2,14 +2,22 @@ extends RigidBody2D
 
 signal hit
 
+enum Spell {
+	FIREBALL,
+	TELEPORT,
+}
+
 export var hp := 100
 export var speed := 100
 
 var _move_to_pos := Vector2.ZERO
 var _moving := false
 
+var _teleporting := false
+var _teleport_to := Vector2.ZERO
+
+var _cast_spell = null
 var _ready_to_cast := false
-var _ready_to_cast_fireball := false
 
 puppet var puppet_pos := Vector2()
 puppet var puppet_motion := Vector2()
@@ -18,22 +26,40 @@ func _ready():
 	puppet_pos = position
 
 
+func _integrate_forces(state):
+	if _teleporting:
+		state.transform = Transform2D(0.0, _teleport_to)
+		_teleport_to = Vector2.ZERO
+		_teleporting = false
+
+
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
+		
 		if event.button_index == BUTTON_RIGHT:
 			print("Mouse Right Click at: ", event.position)
 			_move_to_pos = event.position
 			var move_path_vector = _move_to_pos - position
 			moveTo(move_path_vector)
 			
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == BUTTON_LEFT:
-			if (_ready_to_cast):
-				print("Mouse Left Click at: ", event.position)
-				var move_vector = event.position - position
+		if event.button_index == BUTTON_LEFT and _ready_to_cast:
+			print("Mouse Left Click at: ", event.position)
+
+			if _cast_spell == Spell.FIREBALL:
+				print("Cast: fireball")
 				_ready_to_cast = false
-				_ready_to_cast_fireball = false
+				_cast_spell = null
+				var move_vector = event.position - position
 				rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
+				
+			if _cast_spell == Spell.TELEPORT:
+				print("Cast: teleport")
+				stopMoving()
+				_teleport_to = event.position
+				_teleporting = true
+				_ready_to_cast = false
+				_cast_spell = null
+
 
 func _physics_process(delta):
 	var motion = Vector2()
@@ -43,10 +69,16 @@ func _physics_process(delta):
 			if motion.length() < 2:
 				stopMoving()
 			
-		var castFireball = Input.is_action_pressed("cast_fireball")
+		var castFireball := Input.is_action_pressed("cast_fireball")
 		if castFireball:
 			_ready_to_cast = true
-			_ready_to_cast_fireball = true
+			_cast_spell = Spell.FIREBALL
+		
+		var castTeleport := Input.is_action_pressed("cast_teleport")
+		if castTeleport:
+			_ready_to_cast = true
+			_cast_spell = Spell.TELEPORT
+		
 		rset("puppet_motion", motion)
 		rset("puppet_pos", position)
 	else:
@@ -83,7 +115,7 @@ remotesync func cast_fireball(pos, vector, by_who):
 	get_node("../..").add_child(fireball)
 
 
-func _on_Player_body_entered(body) -> void:
+func _on_Player_body_entered(body: Node) -> void:
 	body.destroy()
 	emit_signal("hit")
 	$CollisionShape2D.set_deferred("disabled", true)
