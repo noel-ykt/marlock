@@ -2,6 +2,8 @@ extends RigidBody2D
 
 export var speed = 250
 
+var from_player
+
 func _ready():
 	$AnimatedSprite.animation = "cast"
 	$CollisionShape2D.set_deferred("disabled", true)
