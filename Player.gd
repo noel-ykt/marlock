@@ -62,6 +62,9 @@ func _input(event):
 
 
 func _physics_process(delta):
+	
+	print(standOnLava())
+	
 	var motion = Vector2()
 	if is_network_master():
 		if _moving:
@@ -95,6 +98,22 @@ func _physics_process(delta):
 	if not is_network_master():
 		puppet_pos = position # To avoid jitter
 
+
+func standOnLava() -> bool:
+	var tile_name = getStandsOnTileName()
+	return tile_name == 'lava'
+
+
+func getStandsOnTileName() -> String:
+	var player_pos = self.position
+	var land: TileMap = get_node("../..").get_node("land_lava")
+	var loc = land.world_to_map(player_pos)
+	var cell = land.get_cell(loc.x, loc.y)
+	if cell != -1:
+		return land.tile_set.tile_get_name(cell)
+	else:
+		return "land"
+	
 
 func stopMoving() -> void:
 	self.linear_velocity = Vector2.ZERO
