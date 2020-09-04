@@ -7,7 +7,8 @@ enum Spell {
 	TELEPORT,
 }
 
-export var hp := 100
+export var max_hp := 100
+export var current_hp := 100
 export var speed := 100
 
 var _move_to_pos := Vector2.ZERO
@@ -19,6 +20,7 @@ var _teleport_to := Vector2.ZERO
 var _cast_spell = null
 var _ready_to_cast := false
 
+puppet var puppet_hp := 0
 puppet var puppet_pos := Vector2()
 puppet var puppet_motion := Vector2()
 
@@ -63,7 +65,6 @@ func _input(event):
 
 func _physics_process(delta):
 	
-	print(standOnLava())
 	
 	var motion = Vector2()
 	if is_network_master():
@@ -82,11 +83,13 @@ func _physics_process(delta):
 			_ready_to_cast = true
 			_cast_spell = Spell.TELEPORT
 		
+		rset("puppet_hp", current_hp)
 		rset("puppet_motion", motion)
 		rset("puppet_pos", position)
 	else:
 		position = puppet_pos
 		motion = puppet_motion
+		current_hp = puppet_hp
 
 	if motion.x > 0:
 		$AnimatedSprite.play("castle-male-right")
@@ -94,9 +97,15 @@ func _physics_process(delta):
 	elif motion.x < 0:
 		$AnimatedSprite.play("castle-male-right")
 		$AnimatedSprite.flip_h = true
+		
+	get_node("HPBar").value = int((float(current_hp) / max_hp) * 100)
 	
 	if not is_network_master():
 		puppet_pos = position # To avoid jitter
+
+
+func OnHit() -> void:
+	current_hp -= 5
 
 
 func standOnLava() -> bool:
@@ -135,6 +144,7 @@ remotesync func cast_fireball(pos, vector, by_who):
 
 
 func _on_Player_body_entered(body: Node) -> void:
-	body.destroy()
+	print("Hit")
 	emit_signal("hit")
-	$CollisionShape2D.set_deferred("disabled", true)
+	OnHit()
+#	$CollisionShape2D.set_deferred("disabled", true)
