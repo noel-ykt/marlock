@@ -25,6 +25,7 @@ gamestate="*res://gamestate.gd"
 
 [display]
 
+window/size/height=608
 window/size/resizable=false
 
 [input]

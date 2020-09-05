@@ -29,7 +29,6 @@ margin_top = 20.0
 margin_right = 1004.0
 margin_bottom = 40.0
 custom_colors/font_color = Color( 1, 0, 0, 1 )
-text = "Error Text"
 align = 2
 __meta__ = {
 "_edit_use_anchors_": false

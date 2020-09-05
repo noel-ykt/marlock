@@ -2,7 +2,7 @@ extends Node
 
 const DEFAULT_PORT = 10567
 
-var MAX_PLAYERS = 12
+var MAX_PLAYERS = 8
 
 var peer = null
 
@@ -116,7 +116,7 @@ remote func pre_start_game(spawn_points) -> void:
 	
 	var player_scene = load("res://Player.tscn")
 	for p_id in spawn_points:
-		var spawn_pos: Vector2 = world.get_node("StartPosition").position
+		var spawn_pos: Vector2 = world.get_node("SpawnPoint/" + str(spawn_points[p_id])).position
 		var player = player_scene.instance()
 		
 		player.set_name(str(p_id)) # Use unique ID as node name.
