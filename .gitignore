@@ -718,3 +718,4 @@ FodyWeavers.xsd
 
 # Godot
 .import/
+*.import
