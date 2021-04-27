@@ -10,6 +10,7 @@ enum Spell {
 export var max_hp := 100
 export var current_hp := 100
 export var speed := 100
+export var score := 0
 
 var _move_to_pos := Vector2.ZERO
 var _moving := false
@@ -18,12 +19,12 @@ var _teleporting := false
 var _teleport_to := Vector2.ZERO
 
 var _cooldowns = {
-	"fireball": 1.0,
-	"teleport": 3.0
+	Spell.FIREBALL: 1.0,
+	Spell.TELEPORT: 3.0
 }
 var _current_cooldowns = {
-	"fireball": 0.0,
-	"teleport": 0.0
+	Spell.FIREBALL: 0.0,
+	Spell.TELEPORT: 0.0
 }
 
 puppet var puppet_hp := 0
@@ -55,18 +56,19 @@ func _input(event):
 			_moveTo(move_path_vector)
 
 
-	if Input.is_action_pressed("cast_fireball") and _current_cooldowns["fireball"] == 0.0:
+	if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
 		print("Cast: fireball")
 		var move_vector = get_viewport().get_mouse_position() - position
 		rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
-		_current_cooldowns["fireball"] = _cooldowns["fireball"]
+		_current_cooldowns[Spell.FIREBALL] = _cooldowns[Spell.FIREBALL]
 		
-	if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns["teleport"] == 0.0:
+	if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns[Spell.TELEPORT] == 0.0:
 		print("Cast: teleport")
+		$Teleporting.play()
 		_stopMoving()
 		_teleport_to = get_viewport().get_mouse_position()
 		_teleporting = true
-		_current_cooldowns["teleport"] = _cooldowns["teleport"]
+		_current_cooldowns[Spell.TELEPORT] = _cooldowns[Spell.TELEPORT]
 
 
 func _process(delta):
@@ -125,11 +127,6 @@ func isStandsOnLava() -> bool:
 	return tile_name == 'lava'
 
 
-func _onHit(damage) -> void:
-	emit_signal("hit")
-	current_hp -= damage
-
-
 func _getStandsOnTileName() -> String:
 	var player_pos = self.position
 	var loc = land_tilemap.world_to_map(player_pos)
@@ -140,8 +137,12 @@ func _getStandsOnTileName() -> String:
 		return "land"
 
 
-func damage(damage):
-	_onHit(damage)
+func damage(value, source) -> void:
+	#emit_signal("hit")
+	print("Hit %.3f damage by %s" % [value, source])
+	current_hp -= value
+	if current_hp <= 0.0:
+		print("You are killed by %s" % source)
 
 
 func _stopMoving() -> void:
@@ -160,5 +161,4 @@ func _updateHPBar():
 
 
 func _on_LavaHitTimer_timeout():
-	print("hit lava")
-	damage(1)
+	damage(1, "lava")
