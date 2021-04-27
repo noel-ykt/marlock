@@ -17,8 +17,14 @@ var _moving := false
 var _teleporting := false
 var _teleport_to := Vector2.ZERO
 
-var _cast_spell = null
-var _ready_to_cast := false
+var _cooldowns = {
+	"fireball": 1.0,
+	"teleport": 3.0
+}
+var _current_cooldowns = {
+	"fireball": 0.0,
+	"teleport": 0.0
+}
 
 puppet var puppet_hp := 0
 puppet var puppet_pos := Vector2()
@@ -47,24 +53,28 @@ func _input(event):
 			_move_to_pos = event.position
 			var move_path_vector = _move_to_pos - position
 			_moveTo(move_path_vector)
-			
-		if event.button_index == BUTTON_LEFT and _ready_to_cast:
-			print("Mouse Left Click at: ", event.position)
 
-			if _cast_spell == Spell.FIREBALL:
-				print("Cast: fireball")
-				_ready_to_cast = false
-				_cast_spell = null
-				var move_vector = event.position - position
-				rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
-				
-			if _cast_spell == Spell.TELEPORT:
-				print("Cast: teleport")
-				_stopMoving()
-				_teleport_to = event.position
-				_teleporting = true
-				_ready_to_cast = false
-				_cast_spell = null
+
+	if Input.is_action_pressed("cast_fireball") and _current_cooldowns["fireball"] == 0.0:
+		print("Cast: fireball")
+		var move_vector = get_viewport().get_mouse_position() - position
+		rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
+		_current_cooldowns["fireball"] = _cooldowns["fireball"]
+		
+	if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns["teleport"] == 0.0:
+		print("Cast: teleport")
+		_stopMoving()
+		_teleport_to = get_viewport().get_mouse_position()
+		_teleporting = true
+		_current_cooldowns["teleport"] = _cooldowns["teleport"]
+
+
+func _process(delta):
+	for key in _current_cooldowns.keys():
+		if _current_cooldowns[key] > 0.0:
+			_current_cooldowns[key] -= delta
+			if _current_cooldowns[key] < 0.0:
+				_current_cooldowns[key] = 0.0
 
 
 func _physics_process(delta):
@@ -80,16 +90,6 @@ func _physics_process(delta):
 			motion = _move_to_pos - position
 			if motion.length() < 2:
 				_stopMoving()
-			
-		var castFireball := Input.is_action_pressed("cast_fireball")
-		if castFireball:
-			_ready_to_cast = true
-			_cast_spell = Spell.FIREBALL
-		
-		var castTeleport := Input.is_action_pressed("cast_teleport")
-		if castTeleport:
-			_ready_to_cast = true
-			_cast_spell = Spell.TELEPORT
 		
 		rset("puppet_hp", current_hp)
 		rset("puppet_motion", motion)
