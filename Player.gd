@@ -55,20 +55,21 @@ func _input(event):
 			var move_path_vector = _move_to_pos - position
 			_moveTo(move_path_vector)
 
-
-	if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
-		print("Cast: fireball")
-		var move_vector = get_viewport().get_mouse_position() - position
-		rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
-		_current_cooldowns[Spell.FIREBALL] = _cooldowns[Spell.FIREBALL]
-		
-	if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns[Spell.TELEPORT] == 0.0:
-		print("Cast: teleport")
-		$Teleporting.play()
-		_stopMoving()
-		_teleport_to = get_viewport().get_mouse_position()
-		_teleporting = true
-		_current_cooldowns[Spell.TELEPORT] = _cooldowns[Spell.TELEPORT]
+	if event:
+		var now = OS.get_ticks_msec()
+		if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
+			print("Cast: fireball")
+			var move_vector = get_viewport().get_mouse_position() - position
+			rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
+			_current_cooldowns[Spell.FIREBALL] = _cooldowns[Spell.FIREBALL]
+			
+		if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns[Spell.TELEPORT] == 0.0:
+			print("Cast: teleport")
+			$Teleporting.play()
+			_stopMoving()
+			_teleport_to = get_viewport().get_mouse_position()
+			_teleporting = true
+			_current_cooldowns[Spell.TELEPORT] = _cooldowns[Spell.TELEPORT]
 
 
 func _process(delta):
@@ -100,14 +101,8 @@ func _physics_process(delta):
 		position = puppet_pos
 		motion = puppet_motion
 		current_hp = puppet_hp
-
-	if motion.x > 0:
-		$AnimatedSprite.play("castle-male-right")
-		$AnimatedSprite.flip_h = false
-	elif motion.x < 0:
-		$AnimatedSprite.play("castle-male-right")
-		$AnimatedSprite.flip_h = true
-		
+	
+	_updateMovementAnimation(motion)
 	_updateHPBar()
 	
 	if not is_network_master():
@@ -120,6 +115,11 @@ remotesync func cast_fireball(pos, vector, by_who):
 	fireball.from_player = by_who
 	fireball.cast(vector)
 	arena.add_child(fireball)
+	print("test %s %s" % [
+		get_tree().get_network_unique_id(),
+		get_tree().get_instance_id()
+	])
+	rpc_id(get_tree().get_network_unique_id(), "addScore", 1)
 
 
 func isStandsOnLava() -> bool:
@@ -142,8 +142,12 @@ func damage(value, source) -> void:
 	print("Hit %.3f damage by %s" % [value, source])
 	current_hp -= value
 	if current_hp <= 0.0:
-		print("You are killed by %s" % source)
+		print("You was killed by %s" % source)
+		rpc_id(source, "addScore", 1)
 
+remotesync func addScore(value) -> void:
+	score += value
+	$ScoreLabel.text = score as String
 
 func _stopMoving() -> void:
 	self.linear_velocity = Vector2.ZERO
@@ -154,6 +158,29 @@ func _stopMoving() -> void:
 func _moveTo(vector: Vector2) -> void:
 	self.linear_velocity = vector.normalized() * speed
 	_moving = true
+
+
+func _updateMovementAnimation(motion: Vector2) -> void:
+	# Detect and play or stop the desired animation depending on the motion direction
+	$AnimatedSprite.flip_h = false
+	if motion.x == 0 and motion.y == 0:
+		# Freeze current animation on first frame when stopped
+		$AnimatedSprite.frame = 0
+		$AnimatedSprite.stop()
+	else:
+		# Detect - hor or ver movement dominates (with preference for hor)
+		if abs(motion.x) >= abs(motion.y) * 0.5:
+			$AnimatedSprite.animation = "castle-male-right"
+			# Reverse right animation to left if needed
+			if motion.x < 0:
+				$AnimatedSprite.flip_h = true
+		else:
+			if motion.y > 0:
+				$AnimatedSprite.animation = "castle-male-down"
+			else:
+				$AnimatedSprite.animation = "castle-male-up"
+		
+		$AnimatedSprite.play()
 
 
 func _updateHPBar():
