@@ -18,9 +18,9 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 3 ), ExtResource( 11 ), ExtResource( 4 ), ExtResource( 12 ) ],
+"frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
 "loop": true,
-"name": "castle-male-up",
+"name": "castle-male-right",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
@@ -28,9 +28,9 @@ animations = [ {
 "name": "castle-male-down",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
+"frames": [ ExtResource( 3 ), ExtResource( 11 ), ExtResource( 4 ), ExtResource( 12 ) ],
 "loop": true,
-"name": "castle-male-right",
+"name": "castle-male-up",
 "speed": 5.0
 } ]
 
@@ -51,7 +51,7 @@ script = ExtResource( 17 )
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 scale = Vector2( 2, 2 )
 frames = SubResource( 1 )
-animation = "castle-male-right"
+animation = "castle-male-down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 2 )
@@ -77,5 +77,15 @@ wait_time = 0.1
 
 [node name="Teleporting" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource( 14 )
+
+[node name="ScoreLabel" type="RichTextLabel" parent="."]
+margin_left = -29.0328
+margin_top = -24.3608
+margin_right = -9.03276
+margin_bottom = -4.36082
+text = "0"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [connection signal="timeout" from="LavaHitTimer" to="." method="_on_LavaHitTimer_timeout"]
