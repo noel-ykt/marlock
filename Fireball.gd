@@ -22,7 +22,7 @@ func _ready():
 	$CollisionShape2D.set_deferred("disabled", true)
 
 
-func _process(delta):
+func _process(_delta):
 	if $AnimatedSprite.animation == "cast" && $AnimatedSprite.frame == 3:
 		$AnimatedSprite.animation = "fly"
 		$CollisionShape2D.set_deferred("disabled", false)

@@ -1,6 +1,37 @@
 extends Control
 
 
+func _generate_name():
+	randomize()
+	var names = [
+		'Alastor', 'Alatar', 'Albus', 'Aletheia', 'Allanon', 'Azathoth',
+		'Barid', 'Belgarath', 'Cthulhu', 'Dagoth', 'Divayth', 'Faegan',
+		'Gandalf', 'Gwydion', 'Harry', 'Hydra', 'Hypnos', 'Ishamael', 'Jafar',
+		'Kaajh\'Kaalbh', 'Kingsley', 'Lews', 'Logain', 'Merlin', 'Mr O\'Roarke',
+		'Mustrum', 'Nyarlathotep', 'Oz', 'Pallando', 'Paul', 'Prospero',
+		'Radagast', 'Raistlin', 'Rand Al\'Thor', 'Richard', 'Rincewind',
+		'Saruman', 'Sauron', 'Severus', 'Shabbith-Ka', 'Shub-Niggurath',
+		'Simon', 'Tayschrenn', 'Thoth-amon', 'Tretiak', 'Voldemort', 'Wigg',
+		'Xexanoth', 'Yidhra', 'Yog-Sothoth'
+	]
+	var epithets = [
+		'Anxious', 'Architect', 'Bad', 'Beast', 'Bodyguard', 'Butcher',
+		'Common', 'Concerned', 'Cook', 'Crooked', 'Dapper', 'Decent',
+		'Disguised', 'Dull', 'Early', 'Enchanted', 'Executioner', 'Fake King',
+		'Fox', 'Genuine', 'Giant', 'Hasty', 'Hawk', 'Hermit', 'Hollow',
+		'Hospitable', 'Idealist', 'Jester', 'Jigsaw', 'Just', 'Juvenile',
+		'Late', 'Lonely', 'Loyal Heart', 'Loyal', 'Mage', 'Marked', 'Mild',
+		'Mouse', 'Mute', 'Naughty', 'Overprotective', 'Plain', 'Proud', 'Rat',
+		'Rogue', 'Snowflake', 'Stalker', 'Stout', 'Strict', 'Surgeon',
+		'True King', 'Thirsty', 'Watcher', 'Weak', 'Whimp', 'Wizard'
+	]
+	var fullname = "%s The %s" % [
+		names[randi() % names.size()],
+		epithets[randi() % epithets.size()]
+	]
+	return fullname
+
+
 func _ready():
 	# Called every time the node is added to the scene.
 	gamestate.connect("connection_succeeded", self, "_on_connection_success")
@@ -8,12 +39,7 @@ func _ready():
 	gamestate.connect("player_list_changed", self, "refresh_lobby")
 	gamestate.connect("game_ended", self, "_on_game_end")
 	gamestate.connect("game_error", self, "_on_game_error")
-	# Set the player name according to the system username. Fallback to the path.
-	if OS.has_environment("USERNAME"):
-		$Connect/NameInput.text = OS.get_environment("USERNAME")
-	else:
-		var desktop_path = OS.get_system_dir(0).replace("\\", "/").split("/")
-		$Connect/NameInput.text = desktop_path[desktop_path.size() - 2]
+	$Connect/NameInput.text = _generate_name()
 
 
 func _on_connection_success():

@@ -23,14 +23,14 @@ animations = [ {
 "name": "castle-male-right",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
-"loop": true,
-"name": "castle-male-down",
-"speed": 5.0
-}, {
 "frames": [ ExtResource( 3 ), ExtResource( 11 ), ExtResource( 4 ), ExtResource( 12 ) ],
 "loop": true,
 "name": "castle-male-up",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
+"loop": true,
+"name": "castle-male-down",
 "speed": 5.0
 } ]
 
@@ -88,4 +88,20 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="NameLabel" type="RichTextLabel" parent="."]
+margin_left = -80.0
+margin_top = -60.0
+margin_right = 80.0
+margin_bottom = -30.0
+bbcode_enabled = true
+bbcode_text = "[center]Name
+The Epithet[/center]"
+text = "Name
+The Epithet"
+scroll_active = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="hit" from="." to="." method="damage"]
 [connection signal="timeout" from="LavaHitTimer" to="." method="_on_LavaHitTimer_timeout"]

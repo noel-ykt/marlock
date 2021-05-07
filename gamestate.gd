@@ -92,10 +92,10 @@ func begin_game() -> void:
 	assert(get_tree().is_network_server())
 	
 	var spawn_points = {}
-	spawn_points[1] = 0
+	spawn_points[1] = {'id': 0, 'name': player_name}
 	var spawn_point_idx = 1
 	for p in players:
-		spawn_points[p] = spawn_point_idx
+		spawn_points[p] = {'id': spawn_point_idx, 'name': players[p]}
 		spawn_point_idx += 1
 	for p in players:
 		rpc_id(p, "pre_start_game", spawn_points)
@@ -116,13 +116,14 @@ remote func pre_start_game(spawn_points) -> void:
 	
 	var player_scene = load("res://Player.tscn")
 	for p_id in spawn_points:
-		var spawn_pos: Vector2 = world.get_node("SpawnPoint/" + str(spawn_points[p_id])).position
+		var spawn_pos: Vector2 = world.get_node("SpawnPoint/" + str(spawn_points[p_id].id)).position
 		var player = player_scene.instance()
 		
 		player.set_name(str(p_id)) # Use unique ID as node name.
 		player.position = spawn_pos
 		player.set_inertia(0)
 		player.set_network_master(p_id) #set unique id as master.
+		player.set_nickname(spawn_points[p_id].name)
 		
 		world.get_node("Players").add_child(player)
 		

@@ -11,6 +11,7 @@ export var max_hp := 100
 export var current_hp := 100
 export var speed := 100
 export var score := 0
+export var nickname := 'Name\nThe Epithet'
 
 var _move_to_pos := Vector2.ZERO
 var _moving := false
@@ -35,6 +36,11 @@ onready var hp_bar = get_node("HPBar")
 onready var land_tilemap: TileMap = get_node("../..").get_node("land_lava")
 onready var arena = get_node("../..")
 
+
+func set_nickname(new_nickname):
+	nickname = new_nickname.replace(" The ", "\nThe ")
+	$NameLabel.bbcode_text = "[center]%s[/center]" % nickname
+
 func _ready():
 	puppet_pos = position
 
@@ -56,7 +62,6 @@ func _input(event):
 			_moveTo(move_path_vector)
 
 	if event:
-		var now = OS.get_ticks_msec()
 		if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
 			print("Cast: fireball")
 			var move_vector = get_viewport().get_mouse_position() - position
@@ -80,7 +85,7 @@ func _process(delta):
 				_current_cooldowns[key] = 0.0
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if isStandsOnLava() and $LavaHitTimer.is_stopped():
 		$LavaHitTimer.start()
 	
@@ -115,10 +120,6 @@ remotesync func cast_fireball(pos, vector, by_who):
 	fireball.from_player = by_who
 	fireball.cast(vector)
 	arena.add_child(fireball)
-	print("test %s %s" % [
-		get_tree().get_network_unique_id(),
-		get_tree().get_instance_id()
-	])
 	rpc_id(get_tree().get_network_unique_id(), "addScore", 1)
 
 
@@ -138,12 +139,11 @@ func _getStandsOnTileName() -> String:
 
 
 func damage(value, source) -> void:
-	#emit_signal("hit")
 	print("Hit %.3f damage by %s" % [value, source])
 	current_hp -= value
 	if current_hp <= 0.0:
 		print("You was killed by %s" % source)
-		rpc_id(source, "addScore", 1)
+		# rpc_id(source, "addScore", 1)
 
 remotesync func addScore(value) -> void:
 	score += value
@@ -162,17 +162,17 @@ func _moveTo(vector: Vector2) -> void:
 
 func _updateMovementAnimation(motion: Vector2) -> void:
 	# Detect and play or stop the desired animation depending on the motion direction
-	$AnimatedSprite.flip_h = false
 	if motion.x == 0 and motion.y == 0:
-		# Freeze current animation on first frame when stopped
+		# Freeze current animation on the first frame if player stopped
 		$AnimatedSprite.frame = 0
 		$AnimatedSprite.stop()
 	else:
+		$AnimatedSprite.flip_h = false
 		# Detect - hor or ver movement dominates (with preference for hor)
 		if abs(motion.x) >= abs(motion.y) * 0.5:
 			$AnimatedSprite.animation = "castle-male-right"
-			# Reverse right animation to left if needed
 			if motion.x < 0:
+				# Reverse "right" animation to "left" if needed
 				$AnimatedSprite.flip_h = true
 		else:
 			if motion.y > 0:
