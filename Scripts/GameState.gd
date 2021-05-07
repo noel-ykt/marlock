@@ -21,11 +21,12 @@ signal game_error(what)
 
 
 func _ready() -> void:
-	get_tree().connect("network_peer_connected", self, "_player_connected")
-	get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
-	get_tree().connect("connected_to_server", self, "_connected_ok")
-	get_tree().connect("connection_failed", self, "_connected_fail")
-	get_tree().connect("server_disconnected", self, "_server_disconnected")
+	var _err
+	_err = get_tree().connect("network_peer_connected", self, "_player_connected")
+	_err = get_tree().connect("network_peer_disconnected", self, "_player_disconnected")
+	_err = get_tree().connect("connected_to_server", self, "_connected_ok")
+	_err = get_tree().connect("connection_failed", self, "_connected_fail")
+	_err = get_tree().connect("server_disconnected", self, "_server_disconnected")
 
 
 func _player_connected(id) -> void:
@@ -110,11 +111,11 @@ func end_game() -> void:
 	
 	
 remote func pre_start_game(spawn_points) -> void:
-	var world = load("res://arena.tscn").instance()
+	var world = ResourceManager.load_scene(ResourceManager.Scene.ARENA)
 	get_tree().get_root().add_child(world)
 	get_tree().get_root().get_node("Lobby").hide()
 	
-	var player_scene = load("res://Player.tscn")
+	var player_scene = ResourceManager.load_scene(ResourceManager.Scene.PLAYER, false)
 	for p_id in spawn_points:
 		var spawn_pos: Vector2 = world.get_node("SpawnPoint/" + str(spawn_points[p_id].id)).position
 		var player = player_scene.instance()

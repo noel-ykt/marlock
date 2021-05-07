@@ -11,7 +11,7 @@ export var max_hp := 100
 export var current_hp := 100
 export var speed := 100
 export var score := 0
-export var nickname := 'Name\nThe Epithet'
+export var nickname := 'Name The Epithet'
 
 var _move_to_pos := Vector2.ZERO
 var _moving := false
@@ -38,8 +38,7 @@ onready var arena = get_node("../..")
 
 
 func set_nickname(new_nickname):
-	nickname = new_nickname.replace(" The ", "\nThe ")
-	$NameLabel.bbcode_text = "[center]%s[/center]" % nickname
+	$NameLabel.bbcode_text = "[center]%s[/center]" % new_nickname
 
 func _ready():
 	puppet_pos = position
@@ -60,21 +59,23 @@ func _input(event):
 			_move_to_pos = event.position
 			var move_path_vector = _move_to_pos - position
 			_moveTo(move_path_vector)
+			get_tree().set_input_as_handled()
 
-	if event:
+	if event is InputEventKey:
 		if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
 			print("Cast: fireball")
 			var move_vector = get_viewport().get_mouse_position() - position
-			rpc("cast_fireball", position, move_vector, get_tree().get_network_unique_id())
-			_current_cooldowns[Spell.FIREBALL] = _cooldowns[Spell.FIREBALL]
+			cast_spell(Spell.FIREBALL, [position, move_vector, get_tree().get_network_unique_id()])
+			get_tree().set_input_as_handled()
 			
 		if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns[Spell.TELEPORT] == 0.0:
 			print("Cast: teleport")
-			$Teleporting.play()
+			$TeleportingSound.play()
 			_stopMoving()
 			_teleport_to = get_viewport().get_mouse_position()
 			_teleporting = true
 			_current_cooldowns[Spell.TELEPORT] = _cooldowns[Spell.TELEPORT]
+			get_tree().set_input_as_handled()
 
 
 func _process(delta):
@@ -114,8 +115,18 @@ func _physics_process(_delta):
 		puppet_pos = position # To avoid jitter
 
 
+remotesync func cast_spell(spell_name: int, args: Array):
+	var spells_funcs = {
+		Spell.FIREBALL: "cast_fireball",
+		Spell.TELEPORT: "cast_teleport"
+	}
+	var func_name = spells_funcs[spell_name]
+	callv("rpc", [func_name] + args)
+	_current_cooldowns[spell_name] = _cooldowns[spell_name]
+
+
 remotesync func cast_fireball(pos, vector, by_who):
-	var fireball = preload("res://Fireball.tscn").instance()
+	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
 	fireball.position = pos
 	fireball.from_player = by_who
 	fireball.cast(vector)

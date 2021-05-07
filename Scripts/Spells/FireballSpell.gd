@@ -1,23 +1,24 @@
-extends RigidBody2D
+class_name FireballSpell
+extends BaseSpell
 
 export var speed = 350
 
 var from_player
 
-var sounds = {
-	"throw": [
-		preload("res://assets/SFX/Fireball Throw 1.wav"),
-		preload("res://assets/SFX/Fireball Throw 2.wav"),
-		preload("res://assets/SFX/Fireball Throw 3.wav")
-	],
-	"hit": [
-		preload("res://assets/SFX/Fireball Hit 1.wav"),
-		preload("res://assets/SFX/Fireball Hit 2.wav")
-	]
-}
-
 
 func _ready():
+	sounds = {
+		"throw": [
+			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_THROW_1),
+			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_THROW_2),
+			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_THROW_3),
+		],
+		"hit": [
+			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_HIT_1),
+			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_HIT_2),
+		]
+	}
+	audio_player = $AudioStreamPlayer2D
 	$AnimatedSprite.animation = "cast"
 	$CollisionShape2D.set_deferred("disabled", true)
 

@@ -33,12 +33,12 @@ func _generate_name():
 
 
 func _ready():
-	# Called every time the node is added to the scene.
-	gamestate.connect("connection_succeeded", self, "_on_connection_success")
-	gamestate.connect("connection_failed", self, "_on_connection_failed")
-	gamestate.connect("player_list_changed", self, "refresh_lobby")
-	gamestate.connect("game_ended", self, "_on_game_end")
-	gamestate.connect("game_error", self, "_on_game_error")
+	var _err
+	_err = GameState.connect("connection_succeeded", self, "_on_connection_success")
+	_err = GameState.connect("connection_failed", self, "_on_connection_failed")
+	_err = GameState.connect("player_list_changed", self, "refresh_lobby")
+	_err = GameState.connect("game_ended", self, "_on_game_end")
+	_err = GameState.connect("game_error", self, "_on_game_error")
 	$Connect/NameInput.text = _generate_name()
 
 
@@ -54,10 +54,10 @@ func _on_connection_failed():
 
 
 func refresh_lobby():
-	var players = gamestate.get_player_list()
+	var players = GameState.get_player_list()
 	players.sort()
 	$Players/List.clear()
-	$Players/List.add_item(gamestate.get_player_name() + " (You)")
+	$Players/List.add_item(GameState.get_player_name() + " (You)")
 	for p in players:
 		$Players/List.add_item(p)
 		
@@ -87,7 +87,7 @@ func _on_HostBtn_pressed():
 	$Background/ErrorLabel.set_text("")
 	
 	var player_name = $Connect/NameInput.text
-	gamestate.host_game(player_name)
+	GameState.host_game(player_name)
 	refresh_lobby()
 
 
@@ -104,8 +104,8 @@ func _on_JoinBtn_pressed():
 	$Connect/JoinBtn.disabled = true
 	
 	var player_name = $Connect/NameInput.text
-	gamestate.join_game(ip, player_name)
+	GameState.join_game(ip, player_name)
 
 
 func _on_StartBtn_pressed():
-	gamestate.begin_game()
+	GameState.begin_game()

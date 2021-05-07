@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Lobby.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Lobby.gd" type="Script" id=1]
 
 [node name="Lobby" type="Control"]
 anchor_right = 1.0
@@ -95,8 +95,6 @@ margin_left = 20.0
 margin_top = 70.0
 margin_right = 230.0
 margin_bottom = 120.0
-focus_mode = 0
-enabled_focus_mode = 0
 text = "Create Server"
 __meta__ = {
 "_edit_use_anchors_": false
