@@ -2,6 +2,7 @@ extends Node
 
 
 const _root_path = "res://"
+var _cached_resources = {}
 
 enum Type {
 	SCENE, SOUND, SCRIPT
@@ -36,11 +37,25 @@ func _get_resource_path(type: int, resource: int):
 		)
 	return null
 
+func _load(type: int, resource: int, ignore_cache: bool = false):
+	var path = _get_resource_path(type, resource)
+	if path:
+		var is_cache_used = true
+		if ignore_cache or not path in _cached_resources:
+			is_cache_used = false
+			_cached_resources[path] = load(path)
+
+		var lower_type = Type.keys()[type].to_lower()
+		print("Load %s: %s%s" % [lower_type, path, " from cache" if is_cache_used else ""])
+		return _cached_resources[path]
+
+	return null
+
 
 # SCENES
 
 enum Scene {
-	ARENA, LOBBY, PLAYER, SPELLS_FIREBALL, SPELLS_TELEPORT, ERROR
+	ARENA, LOBBY, PLAYER, SPELLS_FIREBALL, SPELLS_TELEPORT
 }
 
 var _scene_root_path = _root_path + "Scenes/"
@@ -54,11 +69,10 @@ var _scene_pathes = {
 }
 
 
-func load_scene(scene: int, instance: bool = true):
-	var path = _get_resource_path(Type.SCENE, scene)
-	if path:
-		print("Load scene: %s" % path)
-		return load(path).instance() if instance else load(path)
+func load_scene(scene: int, instance: bool = true, ignore_cache: bool = false):
+	var loaded_scene = _load(Type.SCENE, scene, ignore_cache)
+	if loaded_scene:
+		return loaded_scene.instance() if instance else loaded_scene
 	
 	return null
 
@@ -82,10 +96,7 @@ var _sound_pathes = {
 	Sound.FIREBALL_HIT_2: "Fireball Hit 2.wav",
 }
 
-func load_sound(sound: int):
-	var path = _get_resource_path(Type.SOUND, sound)
-	if path:
-		print("Load sound: %s" % path)
-		return load(path)
-	
-	return null
+func load_sound(sound: int, ignore_cache: bool = false):
+	return _load(Type.SOUND, sound, ignore_cache)
+
+# SCRIPTS

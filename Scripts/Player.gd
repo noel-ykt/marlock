@@ -129,8 +129,8 @@ remotesync func cast_fireball(pos, vector, by_who):
 	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
 	fireball.position = pos
 	fireball.from_player = by_who
-	fireball.cast(vector)
 	arena.add_child(fireball)
+	fireball.cast(vector)
 	rpc_id(get_tree().get_network_unique_id(), "addScore", 1)
 
 

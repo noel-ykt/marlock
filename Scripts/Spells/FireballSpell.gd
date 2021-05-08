@@ -5,9 +5,8 @@ export var speed = 350
 
 var from_player
 
-
-func _ready():
-	sounds = {
+func _load_sounds():
+	return {
 		"throw": [
 			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_THROW_1),
 			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_THROW_2),
@@ -18,7 +17,12 @@ func _ready():
 			ResourceManager.load_sound(ResourceManager.Sound.FIREBALL_HIT_2),
 		]
 	}
-	audio_player = $AudioStreamPlayer2D
+
+
+func _ready():
+	_audio_player = $AudioStreamPlayer2D
+	_sprite = $AnimatedSprite
+	_collision_shape = $CollisionShape2D
 	$AnimatedSprite.animation = "cast"
 	$CollisionShape2D.set_deferred("disabled", true)
 
@@ -32,16 +36,14 @@ func _process(_delta):
 
 
 func destroy():
-	$AudioStreamPlayer2D.stream = sounds["hit"][randi() % sounds["hit"].size()]
-	$AudioStreamPlayer2D.play()
+	play_sound("hit")
 	linear_velocity = Vector2.ZERO
 	$AnimatedSprite.animation = "destroy"
 	$CollisionShape2D.set_deferred("disabled", true)
 
 
 func cast(vector):
-	$AudioStreamPlayer2D.stream = sounds["throw"][randi() % sounds["throw"].size()]
-	$AudioStreamPlayer2D.play()
+	play_sound("throw")
 	linear_velocity = vector.normalized() * speed
 	rotation = vector.angle()
 
