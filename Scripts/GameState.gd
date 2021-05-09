@@ -111,6 +111,7 @@ func end_game() -> void:
 	
 	
 remote func pre_start_game(spawn_points) -> void:
+	get_tree().set_pause(true)
 	var world = ResourceManager.load_scene(ResourceManager.Scene.ARENA)
 	get_tree().get_root().add_child(world)
 	get_tree().get_root().get_node("Lobby").hide()

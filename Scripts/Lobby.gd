@@ -95,7 +95,7 @@ func _on_JoinBtn_pressed():
 	if $Connect/NameInput.text == "":
 		$Background/ErrorLabel.text = "Invalid name!"
 		return
-	var ip = $Connect/IPInput.text
+	var ip = $Connect/IPInput.text if $Connect/IPInput.text else "127.0.0.1"
 	if not ip.is_valid_ip_address():
 		$Background/ErrorLabel.text = "Invalid IP address!"
 		return
@@ -109,3 +109,7 @@ func _on_JoinBtn_pressed():
 
 func _on_StartBtn_pressed():
 	GameState.begin_game()
+
+
+func _on_RefreshNameBtn_pressed():
+	$Connect/NameInput.text = _generate_name()

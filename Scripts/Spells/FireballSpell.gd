@@ -3,8 +3,6 @@ extends BaseSpell
 
 export var speed = 350
 
-var from_player
-
 func _load_sounds():
 	return {
 		"throw": [
@@ -21,31 +19,38 @@ func _load_sounds():
 
 func _ready():
 	_audio_player = $AudioStreamPlayer2D
-	_sprite = $AnimatedSprite
 	_collision_shape = $CollisionShape2D
-	$AnimatedSprite.animation = "cast"
-	$CollisionShape2D.set_deferred("disabled", true)
+	_sprite = $AnimatedSprite
 
 
 func _process(_delta):
-	if $AnimatedSprite.animation == "cast" && $AnimatedSprite.frame == 3:
-		$AnimatedSprite.animation = "fly"
-		$CollisionShape2D.set_deferred("disabled", false)
-	if $AnimatedSprite.animation == "destroy" && $AnimatedSprite.frame == 3 and not $AudioStreamPlayer2D.is_playing():
+	if _sprite.animation == "cast" and _sprite.frame == 3:
+		_sprite.animation = "fly"
+		_sprite.frame = 0
+		_sprite.playing = true
+		_collision_shape.set_deferred("disabled", false)
+	if _sprite.animation == "destroy" and _sprite.frame == 3 and not _audio_player.is_playing():
 		queue_free()
 
 
 func destroy():
 	play_sound("hit")
+	_sprite.animation = "destroy"
+	_collision_shape.set_deferred("disabled", true)
 	linear_velocity = Vector2.ZERO
-	$AnimatedSprite.animation = "destroy"
-	$CollisionShape2D.set_deferred("disabled", true)
 
 
-func cast(vector):
+func cast(caster, from_pos, to_pos):
+	.cast(caster, from_pos, to_pos)
 	play_sound("throw")
-	linear_velocity = vector.normalized() * speed
-	rotation = vector.angle()
+	add_collision_exception_with(caster)
+	_sprite.animation = "cast"
+	_sprite.frame = 0
+	_sprite.playing = true
+	position = from_pos
+	var move_vector = to_pos - from_pos
+	linear_velocity = move_vector.normalized() * speed
+	rotation = move_vector.angle()
 
 
 func _on_VisibilityNotifier2D_screen_exited():
@@ -53,7 +58,7 @@ func _on_VisibilityNotifier2D_screen_exited():
 
 
 func _on_Fireball_body_entered(body: Node):
-	print("Fireball hit to %s" % body.get_instance_id())
+	print("Fireball hit")
 	destroy()
 	if body.is_in_group("players"):
-		body.damage(5, from_player)
+		body.damage(5, _caster)

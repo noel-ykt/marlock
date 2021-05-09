@@ -1,3 +1,4 @@
+class_name Player
 extends RigidBody2D
 
 signal hit
@@ -11,22 +12,11 @@ export var max_hp := 100
 export var current_hp := 100
 export var speed := 100
 export var score := 0
-export var nickname := 'Name The Epithet'
+export var nickname = 'Name The Epithet'
 
-var _move_to_pos := Vector2.ZERO
-var _moving := false
-
-var _teleporting := false
-var _teleport_to := Vector2.ZERO
-
-var _cooldowns = {
-	Spell.FIREBALL: 1.0,
-	Spell.TELEPORT: 3.0
-}
-var _current_cooldowns = {
-	Spell.FIREBALL: 0.0,
-	Spell.TELEPORT: 0.0
-}
+var _is_moving = false
+var _move_vector = Vector2.ZERO
+var _move_to_pos = Vector2.ZERO
 
 puppet var puppet_hp := 0
 puppet var puppet_pos := Vector2()
@@ -35,55 +25,79 @@ puppet var puppet_motion := Vector2()
 onready var hp_bar = get_node("HPBar")
 onready var land_tilemap: TileMap = get_node("../..").get_node("land_lava")
 onready var arena = get_node("../..")
+onready var _spells = {
+	Spell.FIREBALL: {
+		"scene": ResourceManager.Scene.SPELLS_FIREBALL,
+		"func": "sync_cast_fireball",
+		"icon": $SpellsIcons/FireballIcon,
+		"cooldown": 1.0,
+		"current_cooldown": 0.0,
+	},
+	Spell.TELEPORT: {
+		"scene": ResourceManager.Scene.SPELLS_TELEPORT,
+		"func": "sync_cast_teleport",
+		"icon": $SpellsIcons/TeleportIcon,
+		"is_teleporting": false,
+		"telepots_to": Vector2.ZERO,
+		"cooldown": 3.0,
+		"current_cooldown": 0.0
+	},
+}
 
 
 func set_nickname(new_nickname):
-	$NameLabel.bbcode_text = "[center]%s[/center]" % new_nickname
+	nickname = new_nickname
+	$NameLabel.text = nickname
 
 func _ready():
 	puppet_pos = position
+	
+	if not is_network_master():
+		$SpellsIcons.hide()
 
 
 func _integrate_forces(state):
-	if _teleporting:
-		state.transform = Transform2D(0.0, _teleport_to)
-		_teleport_to = Vector2.ZERO
-		_teleporting = false
+	if _spells[Spell.TELEPORT].is_teleporting:
+		state.transform = Transform2D(0.0, _spells[Spell.TELEPORT].telepots_to)
+		_spells[Spell.TELEPORT].is_teleporting = false
+		_spells[Spell.TELEPORT].telepots_to = Vector2.ZERO
 
 
 func _input(event):
-	if event is InputEventMouseButton and event.pressed:
-		
-		if event.button_index == BUTTON_RIGHT:
-			print("Mouse Right Click at: ", event.position)
-			_move_to_pos = event.position
-			var move_path_vector = _move_to_pos - position
-			_moveTo(move_path_vector)
-			get_tree().set_input_as_handled()
+	# Process only own input events
+	if is_network_master():
+		if event is InputEventMouseMotion:
+			arena.get_node("DebugLabel").text = str(event.position)
 
-	if event is InputEventKey:
-		if Input.is_action_pressed("cast_fireball") and _current_cooldowns[Spell.FIREBALL] == 0.0:
-			print("Cast: fireball")
-			var move_vector = get_viewport().get_mouse_position() - position
-			cast_spell(Spell.FIREBALL, [position, move_vector, get_tree().get_network_unique_id()])
-			get_tree().set_input_as_handled()
-			
-		if Input.is_action_pressed("cast_teleport") and not _teleporting and _current_cooldowns[Spell.TELEPORT] == 0.0:
-			print("Cast: teleport")
-			$TeleportingSound.play()
-			_stopMoving()
-			_teleport_to = get_viewport().get_mouse_position()
-			_teleporting = true
-			_current_cooldowns[Spell.TELEPORT] = _cooldowns[Spell.TELEPORT]
-			get_tree().set_input_as_handled()
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == BUTTON_RIGHT:
+				print("Mouse Right Click at: ", event.position)
+				_move_to(event.position)
+				get_tree().set_input_as_handled()
+
+		if event is InputEventKey:
+			if Input.is_action_pressed("cast_fireball"):
+				if _spells[Spell.FIREBALL].current_cooldown <= 0.0:
+					cast_spell(Spell.FIREBALL)
+					get_tree().set_input_as_handled()
+				
+			if Input.is_action_pressed("cast_teleport"):
+				if _spells[Spell.TELEPORT].current_cooldown <= 0.0 and _spells[Spell.TELEPORT].is_teleporting == false:
+					cast_spell(Spell.TELEPORT)
+					get_tree().set_input_as_handled()
 
 
 func _process(delta):
-	for key in _current_cooldowns.keys():
-		if _current_cooldowns[key] > 0.0:
-			_current_cooldowns[key] -= delta
-			if _current_cooldowns[key] < 0.0:
-				_current_cooldowns[key] = 0.0
+	$PositionLabel.text = str(position) # DEBUG
+	for key in _spells.keys():
+		var spell = _spells[key]
+		if spell.current_cooldown > 0.0:
+			spell.icon.get_node("Border").border_color = Color.red
+			spell.current_cooldown -= delta
+			if spell.current_cooldown < 0.0:
+				spell.current_cooldown = 0.0
+				spell.icon.get_node("Border").border_color = Color.green
+			spell.icon.get_node("CooldownProgress").value = int((float(spell.current_cooldown) / spell.cooldown) * 100)
 
 
 func _physics_process(_delta):
@@ -95,10 +109,11 @@ func _physics_process(_delta):
 	
 	var motion = Vector2()
 	if is_network_master():
-		if _moving:
+		if _is_moving:
 			motion = _move_to_pos - position
 			if motion.length() < 2:
 				_stopMoving()
+				motion = Vector2.ZERO
 		
 		rset("puppet_hp", current_hp)
 		rset("puppet_motion", motion)
@@ -115,23 +130,33 @@ func _physics_process(_delta):
 		puppet_pos = position # To avoid jitter
 
 
-remotesync func cast_spell(spell_name: int, args: Array):
-	var spells_funcs = {
-		Spell.FIREBALL: "cast_fireball",
-		Spell.TELEPORT: "cast_teleport"
-	}
-	var func_name = spells_funcs[spell_name]
-	callv("rpc", [func_name] + args)
-	_current_cooldowns[spell_name] = _cooldowns[spell_name]
+func cast_spell(spell_name: int):
+	var func_name = _spells[spell_name].func
+	var cast_target = get_viewport().get_mouse_position()
+	_spells[spell_name].current_cooldown = _spells[spell_name].cooldown
+	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y)
 
 
-remotesync func cast_fireball(pos, vector, by_who):
+remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float):
+	var caster: Player = get_node("../%d" % caster_id)
+	var from_pos = caster.position
+	var to_pos = Vector2(to_x, to_y)
+	callv(spell_func, [caster, from_pos, to_pos])
+
+remotesync func sync_cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2):
 	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
-	fireball.position = pos
-	fireball.from_player = by_who
 	arena.add_child(fireball)
-	fireball.cast(vector)
-	rpc_id(get_tree().get_network_unique_id(), "addScore", 1)
+	fireball.cast(caster, from_pos, to_pos)
+
+
+remotesync func sync_cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2):
+	var teleport = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_TELEPORT)
+	arena.add_child(teleport)
+	teleport.cast(caster, from_pos, to_pos)
+
+	caster._stopMoving()
+	caster._spells[Spell.TELEPORT].is_teleporting = true
+	caster._spells[Spell.TELEPORT].telepots_to = to_pos
 
 
 func isStandsOnLava() -> bool:
@@ -140,8 +165,7 @@ func isStandsOnLava() -> bool:
 
 
 func _getStandsOnTileName() -> String:
-	var player_pos = self.position
-	var loc = land_tilemap.world_to_map(player_pos)
+	var loc = land_tilemap.world_to_map(position)
 	var cell = land_tilemap.get_cell(loc.x, loc.y)
 	if cell != -1:
 		return land_tilemap.tile_set.tile_get_name(cell)
@@ -150,7 +174,7 @@ func _getStandsOnTileName() -> String:
 
 
 func damage(value, source) -> void:
-	print("Hit %.3f damage by %s" % [value, source])
+	#print("Hit %.3f damage by %s" % [value, source])
 	current_hp -= value
 	if current_hp <= 0.0:
 		print("You was killed by %s" % source)
@@ -161,19 +185,21 @@ remotesync func addScore(value) -> void:
 	$ScoreLabel.text = score as String
 
 func _stopMoving() -> void:
-	self.linear_velocity = Vector2.ZERO
-	_moving = false
+	linear_velocity = Vector2.ZERO
+	_is_moving = false
 	$AnimatedSprite.stop()
 
 
-func _moveTo(vector: Vector2) -> void:
-	self.linear_velocity = vector.normalized() * speed
-	_moving = true
+func _move_to(to_pos: Vector2) -> void:
+	_move_to_pos = to_pos
+	_move_vector = _move_to_pos - position
+	linear_velocity = _move_vector.normalized() * speed
+	_is_moving = true
 
 
 func _updateMovementAnimation(motion: Vector2) -> void:
 	# Detect and play or stop the desired animation depending on the motion direction
-	if motion.x == 0 and motion.y == 0:
+	if motion == Vector2.ZERO:
 		# Freeze current animation on the first frame if player stopped
 		$AnimatedSprite.frame = 0
 		$AnimatedSprite.stop()

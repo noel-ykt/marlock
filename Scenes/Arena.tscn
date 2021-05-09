@@ -252,6 +252,17 @@ tile_data = PoolIntArray( -1, 6, 0, -65536, 1, 0, -65535, 1, 0, -65534, 1, 0, -6
 
 [node name="Players" type="Node2D" parent="."]
 
+[node name="DebugLabel" type="Label" parent="."]
+margin_left = 800.0
+margin_top = 4.0
+margin_right = 1020.0
+margin_bottom = 18.0
+text = "(0.0, 0.0)"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="SpawnPoint" type="Node2D" parent="."]
 
 [node name="0" type="Position2D" parent="SpawnPoint"]

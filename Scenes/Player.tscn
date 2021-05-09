@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 4).png" type="Texture" id=1]
 [ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 1).png" type="Texture" id=2]
@@ -13,14 +13,16 @@
 [ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 2).png" type="Texture" id=11]
 [ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 4).png" type="Texture" id=12]
 [ext_resource path="res://Assets/HPBar.jpg" type="Texture" id=13]
-[ext_resource path="res://Assets/SFX/Teleporting.wav" type="AudioStream" id=14]
+[ext_resource path="res://Assets/CooldownFade.png" type="Texture" id=14]
+[ext_resource path="res://Assets/HAS Magic Book/FrostRing/IconFrostRing.png" type="Texture" id=15]
+[ext_resource path="res://Assets/HAS Magic Book/FireBall/IconFireBall.png" type="Texture" id=16]
 [ext_resource path="res://Scripts/Player.gd" type="Script" id=17]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
+"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
 "loop": true,
-"name": "castle-male-right",
+"name": "castle-male-down",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 3 ), ExtResource( 11 ), ExtResource( 4 ), ExtResource( 12 ) ],
@@ -28,9 +30,9 @@ animations = [ {
 "name": "castle-male-up",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
+"frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
 "loop": true,
-"name": "castle-male-down",
+"name": "castle-male-right",
 "speed": 5.0
 } ]
 
@@ -75,28 +77,98 @@ __meta__ = {
 [node name="LavaHitTimer" type="Timer" parent="."]
 wait_time = 0.1
 
-[node name="TeleportingSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource( 14 )
-
-[node name="ScoreLabel" type="RichTextLabel" parent="."]
-margin_left = -29.0328
-margin_top = -24.3608
-margin_right = -9.03276
-margin_bottom = -4.36082
-text = "0"
+[node name="NameLabel" type="Label" parent="."]
+margin_left = -50.0
+margin_top = -50.0
+margin_right = 50.0
+margin_bottom = -36.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Name The Epythet"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NameLabel" type="RichTextLabel" parent="."]
-margin_left = -80.0
-margin_top = -45.0
-margin_right = 80.0
-margin_bottom = -30.0
-bbcode_enabled = true
-bbcode_text = "[center]Name The Epithet[/center]"
-text = "Name The Epithet"
-scroll_active = false
+[node name="PositionLabel" type="Label" parent="."]
+visible = false
+margin_left = -60.0
+margin_top = 19.7351
+margin_right = 60.0
+margin_bottom = 33.7351
+text = "(0.0)"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScoreLabel" type="Label" parent="."]
+margin_left = 33.0
+margin_top = -34.0
+margin_right = 54.0
+margin_bottom = -20.0
+text = "0"
+valign = 1
+clip_text = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SpellsIcons" type="Control" parent="."]
+margin_left = -30.0
+margin_top = -23.8472
+margin_right = 30.2649
+margin_bottom = -13.7607
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TeleportIcon" type="Sprite" parent="SpellsIcons"]
+position = Vector2( 1, 1 )
+texture = ExtResource( 15 )
+centered = false
+
+[node name="Border" type="ReferenceRect" parent="SpellsIcons/TeleportIcon"]
+margin_right = 16.0
+margin_bottom = 16.0
+border_color = Color( 0, 1, 0, 1 )
+editor_only = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CooldownProgress" type="TextureProgress" parent="SpellsIcons/TeleportIcon"]
+margin_right = 16.0
+margin_bottom = 16.0
+texture_progress = ExtResource( 14 )
+fill_mode = 5
+tint_progress = Color( 1, 0, 0, 0.784314 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FireballIcon" type="Sprite" parent="SpellsIcons"]
+position = Vector2( 43, 1 )
+texture = ExtResource( 16 )
+centered = false
+
+[node name="Border" type="ReferenceRect" parent="SpellsIcons/FireballIcon"]
+margin_right = 16.0
+margin_bottom = 16.0
+border_color = Color( 0, 1, 0, 1 )
+editor_only = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CooldownProgress" type="TextureProgress" parent="SpellsIcons/FireballIcon"]
+margin_right = 16.0
+margin_bottom = 16.0
+texture_progress = ExtResource( 14 )
+fill_mode = 5
+tint_progress = Color( 1, 0, 0, 0.784314 )
 __meta__ = {
 "_edit_use_anchors_": false
 }

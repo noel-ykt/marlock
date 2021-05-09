@@ -16,26 +16,27 @@
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 2 ), ExtResource( 6 ), ExtResource( 9 ) ],
-"loop": true,
-"name": "fly",
-"speed": 10.0
-}, {
 "frames": [ ExtResource( 11 ), ExtResource( 12 ), ExtResource( 7 ), null ],
 "loop": false,
 "name": "destroy",
 "speed": 10.0
 }, {
+"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 2 ), ExtResource( 6 ), ExtResource( 9 ) ],
+"loop": true,
+"name": "fly",
+"speed": 10.0
+}, {
 "frames": [ ExtResource( 13 ), ExtResource( 10 ), ExtResource( 4 ), ExtResource( 8 ) ],
 "loop": false,
 "name": "cast",
-"speed": 30.0
+"speed": 10.0
 } ]
 
 [sub_resource type="CircleShape2D" id=2]
 radius = 4.68752
 
-[node name="Fireball" type="RigidBody2D"]
+[node name="FireballSpell" type="RigidBody2D"]
+mode = 2
 gravity_scale = 0.0
 contacts_reported = 1
 contact_monitor = true
@@ -43,12 +44,11 @@ script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 1 )
-animation = "fly"
+animation = "cast"
 frame = 3
-playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( 4, 0 )
+scale = Vector2( 2, 2 )
 shape = SubResource( 2 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]

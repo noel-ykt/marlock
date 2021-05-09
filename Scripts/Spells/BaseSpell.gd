@@ -4,6 +4,7 @@ extends RigidBody2D
 
 enum Sounds {}
 
+var _caster = null
 var _audio_player: AudioStreamPlayer2D = null
 var _collision_shape: CollisionShape2D = null
 var _sprite: AnimatedSprite = null
@@ -29,8 +30,8 @@ func _ready():
 	_load_resources()
 
 
-func cast(vector):
-	pass
+func cast(caster, from_pos, to_pos):
+	_caster = caster
 
 func set_animation(name: String):
 	pass
@@ -39,7 +40,7 @@ func play_sound(name: String, sound_idx: int = -1):
 	if _audio_player:
 		var sound: AudioStream = null
 		if name in _resources.sounds:
-			if _resources.sounds[name] is Array:	
+			if _resources.sounds[name] is Array:
 				if sound_idx > -1 and sound_idx in _resources.sounds[name]:
 					sound = _resources.sounds[name][sound_idx]
 				elif _resources.sounds[name].size() > 0:
