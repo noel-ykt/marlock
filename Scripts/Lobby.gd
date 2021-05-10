@@ -60,8 +60,9 @@ func refresh_lobby():
 	$Players/List.add_item(GameState.get_player_name() + " (You)")
 	for p in players:
 		$Players/List.add_item(p)
-		
-	$Players/StartBtn.disabled = not get_tree().is_network_server()
+	
+	if not get_tree().is_network_server():
+		$Players/StartBtn.hide()
 
 
 func _on_game_end():

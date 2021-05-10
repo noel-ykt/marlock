@@ -1,42 +1,91 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 4).png" type="Texture" id=1]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 1).png" type="Texture" id=2]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 1).png" type="Texture" id=3]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 3).png" type="Texture" id=4]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 2).png" type="Texture" id=5]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Down (Frame 3).png" type="Texture" id=6]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Right (Frame 1).png" type="Texture" id=7]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Right (Frame 2).png" type="Texture" id=8]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Right (Frame 3).png" type="Texture" id=9]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Right (Frame 4).png" type="Texture" id=10]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 2).png" type="Texture" id=11]
-[ext_resource path="res://Assets/HAS Hero Pack/Castle/Male/Sprites/CastleSpriteMale-Up (Frame 4).png" type="Texture" id=12]
-[ext_resource path="res://Assets/HPBar.jpg" type="Texture" id=13]
-[ext_resource path="res://Assets/CooldownFade.png" type="Texture" id=14]
-[ext_resource path="res://Assets/HAS Magic Book/FrostRing/IconFrostRing.png" type="Texture" id=15]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/IconFireBall.png" type="Texture" id=16]
+[ext_resource path="res://Assets/Sprites/Player/PlayerTileset.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Sprites/Masks/HPBarMask.jpg" type="Texture" id=13]
+[ext_resource path="res://Assets/Sprites/Masks/CooldownMask.png" type="Texture" id=14]
+[ext_resource path="res://Assets/Sprites/Spells/Teleport/TeleportIcon.png" type="Texture" id=15]
+[ext_resource path="res://Assets/Sprites/Spells/Fireball/FireballIcon.png" type="Texture" id=16]
 [ext_resource path="res://Scripts/Player.gd" type="Script" id=17]
 
-[sub_resource type="SpriteFrames" id=1]
+[sub_resource type="AtlasTexture" id=1]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=2]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=3]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 32, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=4]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 48, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=5]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 0, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=6]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 16, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=7]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 32, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=8]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 48, 32, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=9]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 0, 96, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=10]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 16, 96, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=11]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 32, 96, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=12]
+flags = 4
+atlas = ExtResource( 1 )
+region = Rect2( 48, 96, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=13]
 animations = [ {
-"frames": [ ExtResource( 2 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 1 ) ],
+"frames": [ SubResource( 1 ), SubResource( 2 ), SubResource( 3 ), SubResource( 4 ) ],
+"loop": true,
+"name": "castle-male-right",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ) ],
 "loop": true,
 "name": "castle-male-down",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 11 ), ExtResource( 4 ), ExtResource( 12 ) ],
+"frames": [ SubResource( 9 ), SubResource( 10 ), SubResource( 11 ), SubResource( 12 ) ],
 "loop": true,
 "name": "castle-male-up",
 "speed": 5.0
-}, {
-"frames": [ ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ) ],
-"loop": true,
-"name": "castle-male-right",
-"speed": 5.0
 } ]
 
-[sub_resource type="CircleShape2D" id=2]
+[sub_resource type="CircleShape2D" id=14]
 radius = 13.8269
 
 [node name="Player" type="RigidBody2D" groups=[
@@ -52,11 +101,11 @@ script = ExtResource( 17 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 scale = Vector2( 2, 2 )
-frames = SubResource( 1 )
+frames = SubResource( 13 )
 animation = "castle-male-down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+shape = SubResource( 14 )
 
 [node name="HPBar" type="TextureProgress" parent="."]
 margin_left = -30.0
@@ -133,7 +182,7 @@ centered = false
 [node name="Border" type="ReferenceRect" parent="SpellsIcons/TeleportIcon"]
 margin_right = 16.0
 margin_bottom = 16.0
-border_color = Color( 0, 1, 0, 1 )
+border_color = Color( 0.690196, 0.109804, 0.109804, 1 )
 editor_only = false
 __meta__ = {
 "_edit_use_anchors_": false
@@ -144,7 +193,7 @@ margin_right = 16.0
 margin_bottom = 16.0
 texture_progress = ExtResource( 14 )
 fill_mode = 5
-tint_progress = Color( 1, 0, 0, 0.784314 )
+tint_progress = Color( 0.690196, 0.109804, 0.109804, 0.941176 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -157,7 +206,7 @@ centered = false
 [node name="Border" type="ReferenceRect" parent="SpellsIcons/FireballIcon"]
 margin_right = 16.0
 margin_bottom = 16.0
-border_color = Color( 0, 1, 0, 1 )
+border_color = Color( 0.690196, 0.109804, 0.109804, 1 )
 editor_only = false
 __meta__ = {
 "_edit_use_anchors_": false
@@ -168,7 +217,7 @@ margin_right = 16.0
 margin_bottom = 16.0
 texture_progress = ExtResource( 14 )
 fill_mode = 5
-tint_progress = Color( 1, 0, 0, 0.784314 )
+tint_progress = Color( 0.690196, 0.109804, 0.109804, 0.941176 )
 __meta__ = {
 "_edit_use_anchors_": false
 }

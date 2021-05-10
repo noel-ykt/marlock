@@ -1,7 +1,7 @@
 [gd_scene load_steps=13 format=2]
 
-[ext_resource path="res://Assets/HAS Overworld Starter Pack/SP-Land-2.png" type="Texture" id=1]
-[ext_resource path="res://Assets/HAS Overworld Starter Pack/SP-Mountains.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Sprites/Tilesets/UnderworldTileset.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Sprites/Tilesets/MountainsTileset.png" type="Texture" id=2]
 
 [sub_resource type="TileSet" id=1]
 0/name = "land"

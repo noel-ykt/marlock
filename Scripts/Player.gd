@@ -1,8 +1,6 @@
 class_name Player
 extends RigidBody2D
 
-signal hit
-
 enum Spell {
 	FIREBALL,
 	TELEPORT,
@@ -26,13 +24,6 @@ onready var hp_bar = get_node("HPBar")
 onready var land_tilemap: TileMap = get_node("../..").get_node("land_lava")
 onready var arena = get_node("../..")
 onready var _spells = {
-	Spell.FIREBALL: {
-		"scene": ResourceManager.Scene.SPELLS_FIREBALL,
-		"func": "sync_cast_fireball",
-		"icon": $SpellsIcons/FireballIcon,
-		"cooldown": 1.0,
-		"current_cooldown": 0.0,
-	},
 	Spell.TELEPORT: {
 		"scene": ResourceManager.Scene.SPELLS_TELEPORT,
 		"func": "sync_cast_teleport",
@@ -41,6 +32,13 @@ onready var _spells = {
 		"telepots_to": Vector2.ZERO,
 		"cooldown": 3.0,
 		"current_cooldown": 0.0
+	},
+	Spell.FIREBALL: {
+		"scene": ResourceManager.Scene.SPELLS_FIREBALL,
+		"func": "sync_cast_fireball",
+		"icon": $SpellsIcons/FireballIcon,
+		"cooldown": 1.0,
+		"current_cooldown": 0.0,
 	},
 }
 
@@ -76,12 +74,12 @@ func _input(event):
 				get_tree().set_input_as_handled()
 
 		if event is InputEventKey:
-			if Input.is_action_pressed("cast_fireball"):
+			if Input.is_action_pressed("cast_right_spell"):
 				if _spells[Spell.FIREBALL].current_cooldown <= 0.0:
 					cast_spell(Spell.FIREBALL)
 					get_tree().set_input_as_handled()
 				
-			if Input.is_action_pressed("cast_teleport"):
+			if Input.is_action_pressed("cast_left_spell"):
 				if _spells[Spell.TELEPORT].current_cooldown <= 0.0 and _spells[Spell.TELEPORT].is_teleporting == false:
 					cast_spell(Spell.TELEPORT)
 					get_tree().set_input_as_handled()
@@ -92,11 +90,11 @@ func _process(delta):
 	for key in _spells.keys():
 		var spell = _spells[key]
 		if spell.current_cooldown > 0.0:
-			spell.icon.get_node("Border").border_color = Color.red
+			spell.icon.get_node("Border").border_color = Color("#b01c1c")
 			spell.current_cooldown -= delta
 			if spell.current_cooldown < 0.0:
 				spell.current_cooldown = 0.0
-				spell.icon.get_node("Border").border_color = Color.green
+				spell.icon.get_node("Border").border_color = Color("#1cb03a")
 			spell.icon.get_node("CooldownProgress").value = int((float(spell.current_cooldown) / spell.cooldown) * 100)
 
 
@@ -173,11 +171,12 @@ func _getStandsOnTileName() -> String:
 		return "land"
 
 
-func damage(value, source) -> void:
+func damage(value, _source) -> void:
 	#print("Hit %.3f damage by %s" % [value, source])
 	current_hp -= value
 	if current_hp <= 0.0:
-		print("You was killed by %s" % source)
+		pass
+		# print("You was killed by %s" % source)
 		# rpc_id(source, "addScore", 1)
 
 remotesync func addScore(value) -> void:

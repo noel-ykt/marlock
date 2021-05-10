@@ -28,12 +28,13 @@ func _load_scenes():
 
 func _ready():
 	_load_resources()
+	set_network_master(1)
 
 
-func cast(caster, from_pos, to_pos):
+func cast(caster, _from_pos, _to_pos):
 	_caster = caster
 
-func set_animation(name: String):
+func set_animation(_name: String):
 	pass
 
 func play_sound(name: String, sound_idx: int = -1):

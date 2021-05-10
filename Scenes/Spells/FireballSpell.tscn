@@ -1,59 +1,120 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Scripts/Spells/FireballSpell.gd" type="Script" id=1]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 7).png" type="Texture" id=2]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 5).png" type="Texture" id=3]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 3).png" type="Texture" id=4]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 6).png" type="Texture" id=5]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 8).png" type="Texture" id=6]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 12).png" type="Texture" id=7]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 4).png" type="Texture" id=8]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 9).png" type="Texture" id=9]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 2).png" type="Texture" id=10]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 10).png" type="Texture" id=11]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 11).png" type="Texture" id=12]
-[ext_resource path="res://Assets/HAS Magic Book/FireBall/FireBall(Frame 1).png" type="Texture" id=13]
+[ext_resource path="res://Assets/Sprites/Spells/Fireball/FireballFrames.png" type="Texture" id=2]
 
-[sub_resource type="SpriteFrames" id=1]
+[sub_resource type="AtlasTexture" id=1]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 192, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=2]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 216, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=3]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 240, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=4]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 264, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=5]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=6]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 24, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=7]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 48, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=8]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 72, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=9]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 96, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=10]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 120, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=11]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 144, 0, 24, 24 )
+
+[sub_resource type="AtlasTexture" id=12]
+flags = 4
+atlas = ExtResource( 2 )
+region = Rect2( 168, 0, 24, 24 )
+
+[sub_resource type="SpriteFrames" id=13]
 animations = [ {
-"frames": [ ExtResource( 11 ), ExtResource( 12 ), ExtResource( 7 ), null ],
+"frames": [ SubResource( 1 ), SubResource( 2 ), SubResource( 3 ), SubResource( 4 ), null ],
 "loop": false,
 "name": "destroy",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 5 ), ExtResource( 2 ), ExtResource( 6 ), ExtResource( 9 ) ],
-"loop": true,
-"name": "fly",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 13 ), ExtResource( 10 ), ExtResource( 4 ), ExtResource( 8 ) ],
+"frames": [ SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ) ],
 "loop": false,
 "name": "cast",
 "speed": 10.0
+}, {
+"frames": [ SubResource( 9 ), SubResource( 10 ), SubResource( 11 ), SubResource( 12 ) ],
+"loop": true,
+"name": "fly",
+"speed": 10.0
 } ]
 
-[sub_resource type="CircleShape2D" id=2]
+[sub_resource type="CircleShape2D" id=14]
 radius = 4.68752
 
 [node name="FireballSpell" type="RigidBody2D"]
 mode = 2
+mass = 3.0
 gravity_scale = 0.0
 contacts_reported = 1
 contact_monitor = true
 script = ExtResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
-frames = SubResource( 1 )
+frames = SubResource( 13 )
 animation = "cast"
 frame = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 scale = Vector2( 2, 2 )
-shape = SubResource( 2 )
+shape = SubResource( 14 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[node name="DebugLabel" type="Label" parent="."]
+margin_left = -19.6889
+margin_top = 10.8456
+margin_right = 20.3111
+margin_bottom = 24.8456
+text = "12"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [connection signal="body_entered" from="." to="." method="_on_Fireball_body_entered"]
 [connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Scripts/Spells/TeleportSpell.gd" type="Script" id=1]
-[ext_resource path="res://Assets/HAS Magic Book/Disguise/DisguiseAllFrames.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Sprites/Spells/Teleport/TeleportFrames.png" type="Texture" id=2]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
