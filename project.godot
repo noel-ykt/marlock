@@ -8,25 +8,49 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "RigidBody2D",
+"class": "BaseSpell",
+"language": "GDScript",
+"path": "res://Scripts/Spells/BaseSpell.gd"
+}, {
+"base": "BaseSpell",
+"class": "FireballSpell",
+"language": "GDScript",
+"path": "res://Scripts/Spells/FireballSpell.gd"
+}, {
+"base": "RigidBody2D",
+"class": "Player",
+"language": "GDScript",
+"path": "res://Scripts/Player.gd"
+}, {
+"base": "BaseSpell",
+"class": "TeleportSpell",
+"language": "GDScript",
+"path": "res://Scripts/Spells/TeleportSpell.gd"
+} ]
 _global_script_class_icons={
-
+"BaseSpell": "",
+"FireballSpell": "",
+"Player": "",
+"TeleportSpell": ""
 }
 
 [application]
 
-config/name="marlock"
-run/main_scene="res://Lobby.tscn"
-config/icon="res://icon.png"
+config/name="Marlock"
+run/main_scene="res://Scenes/Lobby.tscn"
+config/icon="res://Assets/icon.png"
 
 [autoload]
 
-gamestate="*res://gamestate.gd"
+GameState="*res://Scripts/GameState.gd"
+ResourceManager="*res://Scripts/Utils/ResourceManager.gd"
 
 [display]
 
-window/size/height=608
-window/size/resizable=false
+window/stretch/mode="2d"
+window/stretch/aspect="keep"
 
 [input]
 
@@ -54,14 +78,14 @@ ui_down={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":83,"unicode":0,"echo":false,"script":null)
  ]
 }
-cast_fireball={
+cast_left_spell={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":70,"unicode":0,"echo":false,"script":null)
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":81,"unicode":0,"echo":false,"script":null)
  ]
 }
-cast_teleport={
+cast_right_spell={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":84,"unicode":0,"echo":false,"script":null)
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":69,"unicode":0,"echo":false,"script":null)
  ]
 }
 
