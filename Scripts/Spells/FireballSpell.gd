@@ -36,8 +36,9 @@ remotesync func destroy():
 	_collision_shape.set_deferred("disabled", true)
 	linear_velocity = Vector2.ZERO
 
-func cast(caster, from_pos, to_pos):
-	.cast(caster, from_pos, to_pos)
+func cast(caster, from_pos, to_pos, r):
+	.cast(caster, from_pos, to_pos, r)
+	$DebugLabel.text = get_name()
 	play_sound("throw")
 	add_collision_exception_with(caster)
 	_sprite.animation = "cast"

@@ -133,6 +133,7 @@ remote func pre_start_game(spawn_points) -> void:
 		# Tell server we are ready to start.
 		rpc_id(1, "ready_to_start", get_tree().get_network_unique_id())
 	elif players.size() == 0:
+		# If network master start game if you are only one player
 		post_start_game()
 		
 	

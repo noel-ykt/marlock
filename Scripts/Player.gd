@@ -31,7 +31,7 @@ onready var arena = get_node("../..")
 onready var _spells = {
 	SpellSlot.LEFT: {
 		"scene": ResourceManager.Scene.SPELLS_TELEPORT,
-		"func": "sync_cast_teleport",
+		"func": "cast_teleport",
 		"icon": $SpellsIcons/TeleportIcon,
 		"is_teleporting": false,
 		"telepots_to": Vector2.ZERO,
@@ -40,7 +40,7 @@ onready var _spells = {
 	},
 	SpellSlot.RIGHT: {
 		"scene": ResourceManager.Scene.SPELLS_FIREBALL,
-		"func": "sync_cast_fireball",
+		"func": "cast_fireball",
 		"icon": $SpellsIcons/FireballIcon,
 		"cooldown": 1.0,
 		"current_cooldown": 0.0,
@@ -136,25 +136,25 @@ func cast_spell(spell_name: int):
 	var func_name = _spells[spell_name].func
 	var cast_target = get_viewport().get_mouse_position()
 	_spells[spell_name].current_cooldown = _spells[spell_name].cooldown
-	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y)
+	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y, randi())
 
 
-remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float):
+remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float, r: int):
 	var caster: Player = get_node("../%d" % caster_id)
 	var from_pos = caster.position
 	var to_pos = Vector2(to_x, to_y)
-	callv(spell_func, [caster, from_pos, to_pos])
+	callv(spell_func, [caster, from_pos, to_pos, r])
 
-remotesync func sync_cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2):
+func cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
 	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
 	arena.add_child(fireball)
-	fireball.cast(caster, from_pos, to_pos)
+	fireball.cast(caster, from_pos, to_pos, r)
 
 
-remotesync func sync_cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2):
+func cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
 	var teleport = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_TELEPORT)
 	arena.add_child(teleport)
-	teleport.cast(caster, from_pos, to_pos)
+	teleport.cast(caster, from_pos, to_pos, r)
 
 	caster._stopMoving()
 	caster._spells[SpellSlot.LEFT].is_teleporting = true

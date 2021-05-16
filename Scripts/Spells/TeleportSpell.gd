@@ -18,8 +18,8 @@ func _process(_delta):
 		queue_free()
 
 
-func cast(caster, from_pos, to_pos):
-	.cast(caster, from_pos, to_pos)
+func cast(caster, from_pos, to_pos, r):
+	.cast(caster, from_pos, to_pos, r)
 	_collision_shape.set_deferred("disabled", true)
 	play_sound("cast")
 	_sprite.animation = "cast"
