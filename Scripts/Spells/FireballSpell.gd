@@ -20,6 +20,7 @@ func _ready():
 	_audio_player = $AudioStreamPlayer2D
 	_collision_shape = $CollisionShape2D
 	_sprite = $AnimatedSprite
+	GameState.register_debug_node($DebugLabel)
 
 func _process(_delta):
 	if _sprite.animation == "cast" and _sprite.frame == 3:

@@ -3,8 +3,22 @@ extends Node
 const DEFAULT_PORT = 10567
 
 var MAX_PLAYERS = 8
-
 var peer = null
+
+# DEBUG SECTION
+var DEBUG_MODE = false
+var _debug_nodes: Array = []
+
+func register_debug_node(node: Node):
+	node.visible = DEBUG_MODE
+	_debug_nodes.append(node)
+
+func _input(event):
+	if event is InputEventKey:
+		if Input.is_action_pressed("ui_toggle_debug"):
+			DEBUG_MODE = !DEBUG_MODE
+			for node in _debug_nodes:
+				node.visible = DEBUG_MODE
 
 # Name for my player.
 var player_name = "Player 1"
@@ -27,7 +41,6 @@ func _ready() -> void:
 	_err = get_tree().connect("connected_to_server", self, "_connected_ok")
 	_err = get_tree().connect("connection_failed", self, "_connected_fail")
 	_err = get_tree().connect("server_disconnected", self, "_server_disconnected")
-
 
 func _player_connected(id) -> void:
 	rpc_id(id, "register_player", player_name)

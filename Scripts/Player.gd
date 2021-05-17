@@ -54,6 +54,7 @@ func set_nickname(new_nickname):
 
 func _ready():
 	puppet_pos = position
+	GameState.register_debug_node($DebugLabel)
 	
 	if not is_network_master():
 		$SpellsIcons.hide()
@@ -69,9 +70,6 @@ func _integrate_forces(state):
 func _input(event):
 	# Process only own input events
 	if is_network_master():
-		if event is InputEventMouseMotion:
-			arena.get_node("DebugLabel").text = str(event.position)
-
 		if event is InputEventMouseButton and event.pressed:
 			if event.button_index == BUTTON_RIGHT:
 				print("Mouse Right Click at: ", event.position)
@@ -91,7 +89,7 @@ func _input(event):
 
 
 func _process(delta):
-	$PositionLabel.text = str(position) # DEBUG
+	$DebugLabel.text = str(position)
 	for key in _spells.keys():
 		var spell = _spells[key]
 		if spell.current_cooldown > 0.0:

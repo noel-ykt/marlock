@@ -233,12 +233,13 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="PositionLabel" type="Label" parent="."]
-visible = false
-margin_left = -60.0
-margin_top = 19.7351
-margin_right = 60.0
-margin_bottom = 33.7351
+[node name="DebugLabel" type="Label" parent="."]
+margin_left = -50.0
+margin_top = 20.0
+margin_right = 50.0
+margin_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "(0.0)"
 align = 1
 valign = 1
