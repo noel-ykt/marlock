@@ -6,12 +6,19 @@ var MAX_PLAYERS = 8
 var peer = null
 
 # DEBUG SECTION
-var DEBUG_MODE = false
+var DEBUG_MODE = true
 var _debug_nodes: Array = []
 
 func register_debug_node(node: Node):
-	node.visible = DEBUG_MODE
-	_debug_nodes.append(node)
+	if node and "visible" in node:
+		node.visible = DEBUG_MODE
+		_debug_nodes.append(node)
+		print("registered %d" % node.get_instance_id())
+
+func unregister_debug_node(node: Node):
+	if node in _debug_nodes:
+		_debug_nodes.erase(node)
+		print("unregistered %d" % node.get_instance_id())
 
 func _input(event):
 	if event is InputEventKey:
@@ -130,8 +137,9 @@ remote func pre_start_game(spawn_points) -> void:
 	get_tree().get_root().get_node("Lobby").hide()
 	
 	var player_scene = ResourceManager.load_scene(ResourceManager.Scene.PLAYER, false)
+	var spawnPoints = world.get_node("SpawnPoint")
 	for p_id in spawn_points:
-		var spawn_pos: Vector2 = world.get_node("SpawnPoint/" + str(spawn_points[p_id].id)).position
+		var spawn_pos: Vector2 = spawnPoints.get_node(str(spawn_points[p_id].id)).position + spawnPoints.position
 		var player = player_scene.instance()
 		
 		player.set_name(str(p_id)) # Use unique ID as node name.

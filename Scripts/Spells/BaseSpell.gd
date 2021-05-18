@@ -8,6 +8,7 @@ var _caster = null
 var _audio_player: AudioStreamPlayer2D = null
 var _collision_shape: CollisionShape2D = null
 var _sprite: AnimatedSprite = null
+var _debug_panel: Control = null
 
 var _resources = {
 	"sounds": {},
@@ -31,9 +32,12 @@ func _ready():
 	set_network_master(1)
 
 
-func cast(caster, _from_pos, _to_pos, r):
+func cast(caster, from_pos: Vector2, to_pos: Vector2, net_name: String):
 	_caster = caster
-	set_name(str(r))
+	set_name(net_name)
+	if _debug_panel:
+		_debug_panel.add_label("Identifier", str(get_instance_id()))
+		_debug_panel.add_label("NetIdentifier", "Net: " + get_name())
 
 func set_animation(_name: String):
 	pass
@@ -59,3 +63,7 @@ func play_sound(name: String, sound_idx: int = -1):
 func stop_sound():
 	if _audio_player and _audio_player.playing:
 		_audio_player.stop()
+
+func set_debug_text(label_name: String, text: String):
+	if _debug_panel:
+		_debug_panel.set_label_text(label_name, text)

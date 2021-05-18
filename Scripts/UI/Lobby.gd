@@ -34,6 +34,12 @@ func _generate_name():
 
 func _ready():
 	var _err
+
+	var resolution = OS.get_screen_size()
+	$DebugPanel.add_label("OSResolution", "OS resolution: %dx%d" % [resolution.x, resolution.y], Label.ALIGN_RIGHT)
+	resolution = get_viewport_rect().size
+	$DebugPanel.add_label("GameResolution", "Game resolution: %dx%d" % [resolution.x, resolution.y], Label.ALIGN_RIGHT)
+
 	_err = GameState.connect("connection_succeeded", self, "_on_connection_success")
 	_err = GameState.connect("connection_failed", self, "_on_connection_failed")
 	_err = GameState.connect("player_list_changed", self, "refresh_lobby")

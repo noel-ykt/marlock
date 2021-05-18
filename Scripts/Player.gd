@@ -25,9 +25,9 @@ puppet var puppet_hp := 0
 puppet var puppet_pos := Vector2()
 puppet var puppet_motion := Vector2()
 
-onready var hp_bar = get_node("HPBar")
-onready var land_tilemap: TileMap = get_node("../..").get_node("land_lava")
+
 onready var arena = get_node("../..")
+onready var _effects = {}
 onready var _spells = {
 	SpellSlot.LEFT: {
 		"scene": ResourceManager.Scene.SPELLS_TELEPORT,
@@ -54,7 +54,8 @@ func set_nickname(new_nickname):
 
 func _ready():
 	puppet_pos = position
-	GameState.register_debug_node($DebugLabel)
+	$DebugPanel.add_label("Identifier", "%d (Net: %d)" % [get_instance_id(), get_tree().get_network_unique_id()])
+	$DebugPanel.add_label("Position")
 	
 	if not is_network_master():
 		$SpellsIcons.hide()
@@ -89,7 +90,16 @@ func _input(event):
 
 
 func _process(delta):
-	$DebugLabel.text = str(position)
+	$DebugPanel.set_label_text("Position", "x: %.2f, y: %.2f" % [position.x, position.y])
+	
+	for effect in _effects:
+		match effect:
+			"lava":
+				var current_time = OS.get_ticks_msec()
+				if _effects[effect].last_tick_time + _effects[effect].delay < current_time:
+					_effects[effect].last_tick_time = current_time
+					damage(_effects[effect].damage, "lava")
+
 	for key in _spells.keys():
 		var spell = _spells[key]
 		if spell.current_cooldown > 0.0:
@@ -102,12 +112,6 @@ func _process(delta):
 
 
 func _physics_process(_delta):
-	if isStandsOnLava() and $LavaHitTimer.is_stopped():
-		$LavaHitTimer.start()
-	
-	if not isStandsOnLava() and not $LavaHitTimer.is_stopped():
-		$LavaHitTimer.stop()
-	
 	var motion = Vector2()
 	if is_network_master():
 		if _is_moving:
@@ -130,47 +134,49 @@ func _physics_process(_delta):
 		puppet_pos = position # To avoid jitter
 
 
+func add_effect(effect):
+	if not effect in _effects:
+		if effect == "lava":
+			_effects["lava"] = {
+				last_tick_time = 0,
+				delay = 100,
+				damage = 1
+			}
+
+
+func remove_effect(effect):
+	if effect in _effects:
+		_effects.erase(effect)
+
+
 func cast_spell(spell_name: int):
 	var func_name = _spells[spell_name].func
 	var cast_target = get_viewport().get_mouse_position()
 	_spells[spell_name].current_cooldown = _spells[spell_name].cooldown
-	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y, randi())
+	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y, str(randi()))
 
 
-remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float, r: int):
+remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float, net_name: String):
 	var caster: Player = get_node("../%d" % caster_id)
 	var from_pos = caster.position
 	var to_pos = Vector2(to_x, to_y)
-	callv(spell_func, [caster, from_pos, to_pos, r])
+	callv(spell_func, [caster, from_pos, to_pos, net_name])
 
-func cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
+func cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2, net_name: String):
 	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
 	arena.add_child(fireball)
-	fireball.cast(caster, from_pos, to_pos, r)
+	fireball.cast(caster, from_pos, to_pos, net_name)
 
 
-func cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
+func cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2, net_name: String):
 	var teleport = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_TELEPORT)
 	arena.add_child(teleport)
-	teleport.cast(caster, from_pos, to_pos, r)
+	teleport.cast(caster, from_pos, to_pos, net_name)
 
 	caster._stopMoving()
 	caster._spells[SpellSlot.LEFT].is_teleporting = true
 	caster._spells[SpellSlot.LEFT].telepots_to = to_pos
 
-
-func isStandsOnLava() -> bool:
-	var tile_name = _getStandsOnTileName()
-	return tile_name == 'lava'
-
-
-func _getStandsOnTileName() -> String:
-	var loc = land_tilemap.world_to_map(position)
-	var cell = land_tilemap.get_cell(loc.x, loc.y)
-	if cell != -1:
-		return land_tilemap.tile_set.tile_get_name(cell)
-	else:
-		return "land"
 
 
 func damage(value, source) -> void:
@@ -218,8 +224,4 @@ func _updateMovementAnimation(motion: Vector2) -> void:
 
 
 func _updateHPBar():
-	hp_bar.value = int((float(current_hp) / max_hp) * 100)
-
-
-func _on_LavaHitTimer_timeout():
-	damage(1, "lava")
+	$HPBar.value = int((float(current_hp) / max_hp) * 100)
