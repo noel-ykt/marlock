@@ -16,17 +16,11 @@ func _load_sounds():
 		]
 	}
 
-
 func _ready():
 	_audio_player = $AudioStreamPlayer2D
 	_collision_shape = $CollisionShape2D
 	_sprite = $AnimatedSprite
-	$DebugLabel.text = str(get_instance_id())
-
-func _physics_process(delta):
-	if is_network_master():
-		rset("position", position)
-		rset("rotation", rotation)
+	GameState.register_debug_node($DebugLabel)
 
 func _process(_delta):
 	if _sprite.animation == "cast" and _sprite.frame == 3:
@@ -37,17 +31,15 @@ func _process(_delta):
 	if _sprite.animation == "destroy" and _sprite.frame == 4 and not _audio_player.is_playing():
 		queue_free()
 
-
 remotesync func destroy():
 	play_sound("hit")
-	print("Destroy called on %d" % get_instance_id())
 	_sprite.animation = "destroy"
 	_collision_shape.set_deferred("disabled", true)
 	linear_velocity = Vector2.ZERO
 
-
-func cast(caster, from_pos, to_pos):
-	.cast(caster, from_pos, to_pos)
+func cast(caster, from_pos, to_pos, r):
+	.cast(caster, from_pos, to_pos, r)
+	$DebugLabel.text = get_name()
 	play_sound("throw")
 	add_collision_exception_with(caster)
 	_sprite.animation = "cast"
@@ -58,10 +50,8 @@ func cast(caster, from_pos, to_pos):
 	linear_velocity = move_vector.normalized() * speed
 	rotation = move_vector.angle()
 
-
 func _on_VisibilityNotifier2D_screen_exited():
 	queue_free()
-
 
 func _on_Fireball_body_entered(body: Node):
 	if is_network_master():

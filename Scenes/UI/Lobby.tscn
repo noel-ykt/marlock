@@ -1,14 +1,10 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scripts/Lobby.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/UI/Lobby.gd" type="Script" id=1]
 
 [node name="Lobby" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 0.889771
-margin_top = -1.83801
-margin_right = 0.889771
-margin_bottom = -1.83801
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -18,10 +14,8 @@ __meta__ = {
 anchor_top = 9.8034e-11
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 1.0
-margin_top = -1.95694
-margin_right = 1.0
-margin_bottom = -1.95691
+margin_top = -5.88204e-08
+margin_bottom = 6.10352e-05
 __meta__ = {
 "_edit_use_anchors_": false
 }

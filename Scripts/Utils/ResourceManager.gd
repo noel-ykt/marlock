@@ -3,7 +3,6 @@ extends Node
 
 const _root_path = "res://"
 const _root_import_path = _root_path + ".import/"
-var _cached_resources = {}
 var _preload_all_resources_on_ready = false
 
 enum Type {
@@ -12,11 +11,11 @@ enum Type {
 
 func _ready():
 	if _preload_all_resources_on_ready:
+		print("Preloading...")
 		for type_id in Type.values():
 			var string_type = Type.keys()[type_id].capitalize()
 			var resources = get(string_type)
 			for resource_id in resources.values():
-				var string_resource = "%s.%s" % [string_type, resources.keys()[resource_id]]
 				_load(type_id, resource_id, true)
 
 func _get_resource_path(type: int, resource: int):
@@ -30,7 +29,7 @@ func _get_resource_path(type: int, resource: int):
 	if resource in resource_pathes:
 		var resource_path = resource_root_path + resource_pathes[resource]
 
-		if File.new().file_exists(resource_path):
+		if ResourceLoader.exists(resource_path):
 			return resource_path
 
 		if OS.has_feature("standalone"):
@@ -38,7 +37,7 @@ func _get_resource_path(type: int, resource: int):
 			var resource_name = resource_path.substr(resource_path.find_last('/') + 1)
 			resource_path = "%s%s-%s.sample" % [_root_import_path, resource_name, md5sum]
 
-			if File.new().file_exists(resource_path):
+			if ResourceLoader.exists(resource_path):
 				return resource_path
 		
 		push_warning(
@@ -58,18 +57,16 @@ func _get_resource_path(type: int, resource: int):
 	return null
 
 # TODO: Add cache timeout and garbage collector
-func _load(type: int, resource: int, ignore_cache: bool = false):
+func _load(type: int, resource: int, no_cache: bool = false):
 	var path = _get_resource_path(type, resource)
 	if path:
-		var lower_type = Type.keys()[type].to_lower()
-		var debug_message = "Load %s: %s" % [lower_type, path] # DEBUG
-		if ignore_cache or not path in _cached_resources:
-			_cached_resources[path] = load(path)
-		else: # DEBUG
-			debug_message += " from cache" # DEBUG
+		print("Load %s: %s%s" % [
+			Type.keys()[type].to_lower(),
+			path,
+			" from cache" if ResourceLoader.has_cached(path) else ""
+		]) # DEBUG
 
-		print(debug_message) # DEBUG
-		return _cached_resources[path]
+		return ResourceLoader.load(path, "", no_cache)
 
 	return null
 
@@ -77,14 +74,19 @@ func _load(type: int, resource: int, ignore_cache: bool = false):
 # SCENES
 
 enum Scene {
-	ARENA, LOBBY, PLAYER, SPELLS_FIREBALL, SPELLS_TELEPORT
+	ARENA, PLAYER,
+	UI_LOBBY, UI_MAIN_MENU, UI_SCORE_TABLE,
+	SPELLS_FIREBALL, SPELLS_TELEPORT
 }
 
 var _scene_root_path = _root_path + "Scenes/"
 var _scene_pathes = {
 	Scene.ARENA: "Arena.tscn",
-	Scene.LOBBY: "Lobby.tscn",
 	Scene.PLAYER: "Player.tscn",
+
+	Scene.UI_LOBBY: "UI/Lobby.tscn",
+	Scene.UI_MAIN_MENU: "UI/MainMenu.tscn",
+	Scene.UI_SCORE_TABLE: "UI/ScoreTable.tscn",
 
 	Scene.SPELLS_FIREBALL: "Spells/FireballSpell.tscn",
 	Scene.SPELLS_TELEPORT: "Spells/TeleportSpell.tscn",

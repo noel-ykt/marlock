@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scripts/UI/ScoreTable.gd" type="Script" id=1]
+
+[node name="ScoreTable" type="Control"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="Panel" parent="."]
+modulate = Color( 1, 1, 1, 0.588235 )
+anchor_top = 9.8034e-11
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -250.0
+margin_top = -125.0
+margin_right = 250.0
+margin_bottom = 125.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Players" type="ItemList" parent="."]
+modulate = Color( 1, 1, 1, 0.862745 )
+margin_left = -230.0
+margin_top = -105.0
+margin_right = 230.0
+margin_bottom = 105.0
+max_columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}

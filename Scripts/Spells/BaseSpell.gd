@@ -31,8 +31,9 @@ func _ready():
 	set_network_master(1)
 
 
-func cast(caster, _from_pos, _to_pos):
+func cast(caster, _from_pos, _to_pos, r):
 	_caster = caster
+	set_name(str(r))
 
 func set_animation(_name: String):
 	pass

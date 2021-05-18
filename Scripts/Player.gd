@@ -1,16 +1,21 @@
 class_name Player
 extends RigidBody2D
 
-enum Spell {
-	FIREBALL,
-	TELEPORT,
+enum SpellSlot {
+	RIGHT,
+	LEFT,
+}
+
+enum State {
+	
 }
 
 export var max_hp := 100
-export var current_hp := 100
-export var speed := 100
-export var score := 0
+export var current_hp: float= 100
+export var speed: float = 100
+export var score: int = 0
 export var nickname = 'Name The Epithet'
+export var player_state = "Alive"
 
 var _is_moving = false
 var _move_vector = Vector2.ZERO
@@ -24,18 +29,18 @@ onready var hp_bar = get_node("HPBar")
 onready var land_tilemap: TileMap = get_node("../..").get_node("land_lava")
 onready var arena = get_node("../..")
 onready var _spells = {
-	Spell.TELEPORT: {
+	SpellSlot.LEFT: {
 		"scene": ResourceManager.Scene.SPELLS_TELEPORT,
-		"func": "sync_cast_teleport",
+		"func": "cast_teleport",
 		"icon": $SpellsIcons/TeleportIcon,
 		"is_teleporting": false,
 		"telepots_to": Vector2.ZERO,
 		"cooldown": 3.0,
 		"current_cooldown": 0.0
 	},
-	Spell.FIREBALL: {
+	SpellSlot.RIGHT: {
 		"scene": ResourceManager.Scene.SPELLS_FIREBALL,
-		"func": "sync_cast_fireball",
+		"func": "cast_fireball",
 		"icon": $SpellsIcons/FireballIcon,
 		"cooldown": 1.0,
 		"current_cooldown": 0.0,
@@ -49,24 +54,22 @@ func set_nickname(new_nickname):
 
 func _ready():
 	puppet_pos = position
+	GameState.register_debug_node($DebugLabel)
 	
 	if not is_network_master():
 		$SpellsIcons.hide()
 
 
 func _integrate_forces(state):
-	if _spells[Spell.TELEPORT].is_teleporting:
-		state.transform = Transform2D(0.0, _spells[Spell.TELEPORT].telepots_to)
-		_spells[Spell.TELEPORT].is_teleporting = false
-		_spells[Spell.TELEPORT].telepots_to = Vector2.ZERO
+	if _spells[SpellSlot.LEFT].is_teleporting:
+		state.transform = Transform2D(0.0, _spells[SpellSlot.LEFT].telepots_to)
+		_spells[SpellSlot.LEFT].is_teleporting = false
+		_spells[SpellSlot.LEFT].telepots_to = Vector2.ZERO
 
 
 func _input(event):
 	# Process only own input events
 	if is_network_master():
-		if event is InputEventMouseMotion:
-			arena.get_node("DebugLabel").text = str(event.position)
-
 		if event is InputEventMouseButton and event.pressed:
 			if event.button_index == BUTTON_RIGHT:
 				print("Mouse Right Click at: ", event.position)
@@ -75,18 +78,18 @@ func _input(event):
 
 		if event is InputEventKey:
 			if Input.is_action_pressed("cast_right_spell"):
-				if _spells[Spell.FIREBALL].current_cooldown <= 0.0:
-					cast_spell(Spell.FIREBALL)
+				if _spells[SpellSlot.RIGHT].current_cooldown <= 0.0:
+					cast_spell(SpellSlot.RIGHT)
 					get_tree().set_input_as_handled()
 				
 			if Input.is_action_pressed("cast_left_spell"):
-				if _spells[Spell.TELEPORT].current_cooldown <= 0.0 and _spells[Spell.TELEPORT].is_teleporting == false:
-					cast_spell(Spell.TELEPORT)
+				if _spells[SpellSlot.LEFT].current_cooldown <= 0.0 and _spells[SpellSlot.LEFT].is_teleporting == false:
+					cast_spell(SpellSlot.LEFT)
 					get_tree().set_input_as_handled()
 
 
 func _process(delta):
-	$PositionLabel.text = str(position) # DEBUG
+	$DebugLabel.text = str(position)
 	for key in _spells.keys():
 		var spell = _spells[key]
 		if spell.current_cooldown > 0.0:
@@ -120,8 +123,7 @@ func _physics_process(_delta):
 		position = puppet_pos
 		motion = puppet_motion
 		current_hp = puppet_hp
-	
-	_updateMovementAnimation(motion)
+
 	_updateHPBar()
 	
 	if not is_network_master():
@@ -132,29 +134,29 @@ func cast_spell(spell_name: int):
 	var func_name = _spells[spell_name].func
 	var cast_target = get_viewport().get_mouse_position()
 	_spells[spell_name].current_cooldown = _spells[spell_name].cooldown
-	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y)
+	rpc("sync_cast_spell", func_name, get_tree().get_network_unique_id(), cast_target.x, cast_target.y, randi())
 
 
-remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float):
+remotesync func sync_cast_spell(spell_func: String, caster_id: int, to_x: float, to_y: float, r: int):
 	var caster: Player = get_node("../%d" % caster_id)
 	var from_pos = caster.position
 	var to_pos = Vector2(to_x, to_y)
-	callv(spell_func, [caster, from_pos, to_pos])
+	callv(spell_func, [caster, from_pos, to_pos, r])
 
-remotesync func sync_cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2):
+func cast_fireball(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
 	var fireball = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_FIREBALL)
 	arena.add_child(fireball)
-	fireball.cast(caster, from_pos, to_pos)
+	fireball.cast(caster, from_pos, to_pos, r)
 
 
-remotesync func sync_cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2):
+func cast_teleport(caster: Player, from_pos: Vector2, to_pos: Vector2, r: int):
 	var teleport = ResourceManager.load_scene(ResourceManager.Scene.SPELLS_TELEPORT)
 	arena.add_child(teleport)
-	teleport.cast(caster, from_pos, to_pos)
+	teleport.cast(caster, from_pos, to_pos, r)
 
 	caster._stopMoving()
-	caster._spells[Spell.TELEPORT].is_teleporting = true
-	caster._spells[Spell.TELEPORT].telepots_to = to_pos
+	caster._spells[SpellSlot.LEFT].is_teleporting = true
+	caster._spells[SpellSlot.LEFT].telepots_to = to_pos
 
 
 func isStandsOnLava() -> bool:
@@ -171,12 +173,13 @@ func _getStandsOnTileName() -> String:
 		return "land"
 
 
-func damage(value, _source) -> void:
-	#print("Hit %.3f damage by %s" % [value, source])
-	current_hp -= value
+func damage(value, source) -> void:
+	if current_hp > 0.0:
+		print("Hit %.3f damage by %s" % [value, source])
+		current_hp -= value
 	if current_hp <= 0.0:
-		pass
-		# print("You was killed by %s" % source)
+		current_hp = 0.0
+		print("You was killed by %s" % source)
 		# rpc_id(source, "addScore", 1)
 
 remotesync func addScore(value) -> void:
@@ -186,7 +189,7 @@ remotesync func addScore(value) -> void:
 func _stopMoving() -> void:
 	linear_velocity = Vector2.ZERO
 	_is_moving = false
-	$AnimatedSprite.stop()
+	_updateMovementAnimation(linear_velocity)
 
 
 func _move_to(to_pos: Vector2) -> void:
@@ -194,6 +197,7 @@ func _move_to(to_pos: Vector2) -> void:
 	_move_vector = _move_to_pos - position
 	linear_velocity = _move_vector.normalized() * speed
 	_is_moving = true
+	_updateMovementAnimation(linear_velocity)
 
 
 func _updateMovementAnimation(motion: Vector2) -> void:
@@ -203,19 +207,13 @@ func _updateMovementAnimation(motion: Vector2) -> void:
 		$AnimatedSprite.frame = 0
 		$AnimatedSprite.stop()
 	else:
-		$AnimatedSprite.flip_h = false
-		# Detect - hor or ver movement dominates (with preference for hor)
-		if abs(motion.x) >= abs(motion.y) * 0.5:
-			$AnimatedSprite.animation = "castle-male-right"
-			if motion.x < 0:
-				# Reverse "right" animation to "left" if needed
-				$AnimatedSprite.flip_h = true
-		else:
-			if motion.y > 0:
-				$AnimatedSprite.animation = "castle-male-down"
-			else:
-				$AnimatedSprite.animation = "castle-male-up"
-		
+		# Look away, it's a math
+		# Getting a sector (from 0 to 7) of a motion vector to determine animation's index from the array
+		# 0 - "left-up", 1 - "left", 2 - "left-down", 3 - "down"
+		# 4 - "right-down", 5 - "right", 6 - "right-up" and 7 - "up"
+		var sec = int((motion.angle_to(Vector2.DOWN.rotated(-PI/8)) + PI) / (2 * PI) * 8)
+		var animations = ["left-up", "left", "left-down", "down", "right-down", "right", "right-up", "up"]
+		$AnimatedSprite.animation = animations[sec]
 		$AnimatedSprite.play()
 
 
