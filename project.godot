@@ -19,6 +19,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Scripts/Spells/BaseSpell.gd"
 }, {
+"base": "Control",
+"class": "DebugPanel",
+"language": "GDScript",
+"path": "res://Scripts/UI/DebugPanel.gd"
+}, {
 "base": "BaseSpell",
 "class": "FireballSpell",
 "language": "GDScript",
@@ -42,6 +47,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Arena": "",
 "BaseSpell": "",
+"DebugPanel": "",
 "FireballSpell": "",
 "Player": "",
 "ScoreTable": "",
@@ -61,6 +67,7 @@ GameState="*res://Scripts/GameState.gd"
 
 [display]
 
+window/size/height=768
 window/stretch/mode="2d"
 window/stretch/aspect="keep"
 

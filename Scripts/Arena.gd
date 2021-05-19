@@ -11,14 +11,21 @@ func _ready():
 	_score_table.refresh()
 	_score_table.hide()
 	$ScoreContainer.add_child(_score_table)
-	GameState.register_debug_node($DebugPanel)
+
+	var resolution = OS.get_screen_size()
+	$DebugPanel.add_label("OSResolution", "OS resolution: %dx%d" % [resolution.x, resolution.y], Label.ALIGN_RIGHT)
+	resolution = get_viewport_rect().size
+	$DebugPanel.add_label("GameResolution", "Game resolution: %dx%d" % [resolution.x, resolution.y], Label.ALIGN_RIGHT)
+	$DebugPanel.add_label("MousePosition", "Mouse x: 0, y: 0", Label.ALIGN_RIGHT)
+	$DebugPanel.add_label("Ping", "Ping: 0", Label.ALIGN_RIGHT)
+	$DebugPanel.add_label("FPS", "FPS: 0", Label.ALIGN_RIGHT)
 	if get_tree().is_network_server():
-		$DebugPanel/Ping.text = "Ping: You are host"
+		$DebugPanel.set_label_text("Ping", "Ping: You are host")
 
 
 func _input(event):
 	if event is InputEventMouseMotion:
-		$DebugPanel/MousePosition.text = "Mouse: %d, %d" % [event.position.x, event.position.y]
+		$DebugPanel.set_label_text("MousePosition", "Mouse x: %d, y: %d" % [event.position.x, event.position.y])
 
 	if event is InputEventKey:
 		if Input.is_action_just_pressed("ui_toggle_score_table"):
@@ -28,7 +35,7 @@ func _input(event):
 			_score_table.hide()
 
 func _process(_delta):
-	$DebugPanel/FPS.text = "FPS: %d" % Engine.get_frames_per_second()
+	$DebugPanel.set_label_text("FPS", "FPS: %d" % Engine.get_frames_per_second())
 
 	if not get_tree().is_network_server():
 		if not _is_pinging and (OS.get_ticks_msec() - _last_ping) > 100:
@@ -41,5 +48,14 @@ remote func _ping():
 	
 remote func _pong():
 	if _is_pinging:
-		$DebugPanel/Ping.text = "Ping: %d ms" % (OS.get_ticks_msec() - _last_ping)
+		$DebugPanel.set_label_text("Ping", "Ping: %d ms" % (OS.get_ticks_msec() - _last_ping))
 		_is_pinging = false
+
+func _on_lava_body_entered(body):
+	if body.is_in_group("players"):
+		body.add_effect("lava")
+
+
+func _on_lava_body_exited(body):
+	if body.is_in_group("players"):
+		body.remove_effect("lava")

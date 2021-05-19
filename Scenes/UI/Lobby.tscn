@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Scripts/UI/Lobby.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/UI/DebugPanel.tscn" type="PackedScene" id=2]
 
 [node name="Lobby" type="Control"]
 anchor_right = 1.0
@@ -21,10 +22,10 @@ __meta__ = {
 }
 
 [node name="ErrorLabel" type="Label" parent="Background"]
-margin_left = 512.0
-margin_top = 20.0
-margin_right = 1004.0
-margin_bottom = 40.0
+margin_left = 26.8472
+margin_top = 15.2806
+margin_right = 518.847
+margin_bottom = 35.2806
 custom_colors/font_color = Color( 1, 0, 0, 1 )
 align = 2
 __meta__ = {
@@ -136,6 +137,14 @@ margin_top = 430.0
 margin_right = 280.0
 margin_bottom = 480.0
 text = "Start!"
+
+[node name="DebugPanel" parent="." instance=ExtResource( 2 )]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -300.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = 100.0
 
 [connection signal="pressed" from="Connect/JoinBtn" to="." method="_on_JoinBtn_pressed"]
 [connection signal="pressed" from="Connect/HostBtn" to="." method="_on_HostBtn_pressed"]
